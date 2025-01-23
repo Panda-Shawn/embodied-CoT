@@ -16,12 +16,12 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--id", type=int)
 parser.add_argument("--gpu", type=int)
 parser.add_argument("--splits", default=4, type=int)
-parser.add_argument("--results-path", default="./")
+parser.add_argument("--results-path", default="./descriptions")
 
 args = parser.parse_args()
 
 device = f"cuda:{args.gpu}"
-hf_token = "<TODO: Insert HF Token>"
+hf_token = ""
 vlm_model_id = "prism-dinosiglip+7b"
 
 warnings.filterwarnings("ignore")
@@ -33,8 +33,8 @@ end = (args.id + 1) * split_percents
 
 # Load Bridge V2
 ds = tfds.load(
-    "bridge_orig",
-    data_dir="<TODO: Enter path to BridgeV2>",
+    "libero_10_no_noops",
+    data_dir="/data/lzx/libero_new",
     split=f"train[{start}%:{end}%]",
 )
 
@@ -58,12 +58,15 @@ def create_user_prompt(lang_instruction):
 
 
 results_json = {}
-for episode in tqdm(ds):
+# add enumerate to get episode_id
+# for episode in tqdm(ds):
+for i, episode in tqdm(enumerate(ds)):
     episode_id = episode["episode_metadata"]["episode_id"].numpy()
+    # episode_id = i
     file_path = episode["episode_metadata"]["file_path"].numpy().decode()
     for step in episode["steps"]:
         lang_instruction = step["language_instruction"].numpy().decode()
-        image = Image.fromarray(step["observation"]["image_0"].numpy())
+        image = Image.fromarray(step["observation"]["image"].numpy())
 
         # user_prompt = "Describe the objects in this scene. Be specific."
         user_prompt = create_user_prompt(lang_instruction)

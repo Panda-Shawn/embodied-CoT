@@ -13,7 +13,7 @@ sam_model = SamModel.from_pretrained("facebook/sam-vit-base")
 sam_processor = SamProcessor.from_pretrained("facebook/sam-vit-base")
 
 image_dims = (256, 256)
-image_label = "image_0"
+image_label = "image"
 
 
 def get_bounding_boxes(img, prompt="the black robotic gripper"):
@@ -171,6 +171,13 @@ def process_trajectory(episode):
 def get_corrected_positions(episode_id, builder, plot=False):
     ds = builder.as_dataset(split=f"train[{episode_id}:{episode_id + 1}]")
     episode = next(iter(ds))
+    pr_pos = get_corrected_positions_episode(episode, plot=plot)
+
+    return pr_pos
+
+
+def get_corrected_positions_episode(episode, plot=False):
+
     t = process_trajectory(episode)
 
     images = [step["observation"][image_label] for step in episode["steps"]]

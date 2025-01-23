@@ -7,6 +7,8 @@ import google.generativeai as genai
 from google.api_core.exceptions import ResourceExhausted
 
 from scripts.generate_embodied_data.primitive_movements import get_move_primitives_episode
+from scripts.generate_embodied_data.gripper_positions import get_corrected_positions_episode
+import tensorflow_datasets as tfds
 
 
 class Gemini:
@@ -201,7 +203,7 @@ def get_reasoning_dict(features, metadata, lm):
     return extract_reasoning_dict(reasoning_output)
 
 
-def build_single_reasoning(episode_id, builder, lm, captions):
+def build_single_reasoning(episode_id, builder, lm, captions, bboxes):
     ds = builder.as_dataset(split=f"train[{episode_id}:{episode_id + 1}]")
     episode = next(iter(ds))
 
@@ -211,6 +213,13 @@ def build_single_reasoning(episode_id, builder, lm, captions):
 
     move_primitives = get_move_primitives_episode(episode)
     ft["move_primitive"] = [move[0] for move in move_primitives]
+
+    bboxes = bboxes[episode["episode_metadata"]["file_path"].numpy().decode()]
+    import pdb; pdb.set_trace()
+
+    gripper_positions = get_corrected_positions_episode(episode)
+
+    import pdb; pdb.set_trace()
 
     mt = {
         "episode_id": str(int(episode["episode_metadata"]["episode_id"].numpy())),
@@ -238,11 +247,14 @@ def generate_reasonings(builder, episode_ids, save_path="reasonings.json"):
 
         print("loaded reasonings:", sum([len(v) for v in reasonings.values()]), "entries")
 
-    with open("captions.json", "r") as captions_file:
+    with open("bounding_boxes/descriptions/captions.json", "r") as captions_file:
         captions_dict = json.load(captions_file)
 
+    with open("bounding_boxes/bboxes/full_bboxes.json", "r") as bboxes_file:
+        bboxes = json.load(bboxes_file)
+
     for i in episode_ids:
-        entry = build_single_reasoning(i, builder, lm, captions_dict)
+        entry = build_single_reasoning(i, builder, lm, captions_dict, bboxes)
 
         if entry["metadata"]["file_path"] in reasonings.keys():
             reasonings[entry["metadata"]["file_path"]][entry["metadata"]["episode_id"]] = entry
@@ -253,3 +265,8 @@ def generate_reasonings(builder, episode_ids, save_path="reasonings.json"):
 
     with open(save_path, "w") as out_f:
         json.dump(reasonings, out_f)
+
+
+if __name__ == "__main__":
+    builder = tfds.builder(name="libero_10_no_noops", data_dir="/data/lzx/libero")
+    generate_reasonings(builder, list(range(10)))
