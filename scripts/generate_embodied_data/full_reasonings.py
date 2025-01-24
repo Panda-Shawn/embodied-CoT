@@ -203,23 +203,23 @@ def get_reasoning_dict(features, metadata, lm):
     return extract_reasoning_dict(reasoning_output)
 
 
-def build_single_reasoning(episode_id, builder, lm, captions, bboxes):
+def build_single_reasoning(episode_id, builder, lm, captions, bboxes, gripper_positions):
     ds = builder.as_dataset(split=f"train[{episode_id}:{episode_id + 1}]")
     episode = next(iter(ds))
 
     ft = dict()
 
     ft["state_3d"] = [list(step["observation"]["state"][:3].numpy()) for step in episode["steps"]]
-
+    
     move_primitives = get_move_primitives_episode(episode)
     ft["move_primitive"] = [move[0] for move in move_primitives]
 
-    bboxes = bboxes[episode["episode_metadata"]["file_path"].numpy().decode()]
-    import pdb; pdb.set_trace()
+    bboxes = bboxes[episode["episode_metadata"]["file_path"].numpy().decode()][str(int(episode["episode_metadata"]["episode_id"].numpy()))]
+    ft["bboxes"] = [move[0] for move in move_primitives]
 
-    gripper_positions = get_corrected_positions_episode(episode)
+    # gripper_positions = get_corrected_positions_episode(episode)
 
-    import pdb; pdb.set_trace()
+    # import pdb; pdb.set_trace()
 
     mt = {
         "episode_id": str(int(episode["episode_metadata"]["episode_id"].numpy())),
@@ -253,8 +253,11 @@ def generate_reasonings(builder, episode_ids, save_path="reasonings.json"):
     with open("bounding_boxes/bboxes/full_bboxes.json", "r") as bboxes_file:
         bboxes = json.load(bboxes_file)
 
+    with open("./gripper_positions.json", "r") as gripper_positions_file:
+        gripper_positions = json.load(gripper_positions_file)
+
     for i in episode_ids:
-        entry = build_single_reasoning(i, builder, lm, captions_dict, bboxes)
+        entry = build_single_reasoning(i, builder, lm, captions_dict, bboxes, gripper_positions)
 
         if entry["metadata"]["file_path"] in reasonings.keys():
             reasonings[entry["metadata"]["file_path"]][entry["metadata"]["episode_id"]] = entry
@@ -268,5 +271,5 @@ def generate_reasonings(builder, episode_ids, save_path="reasonings.json"):
 
 
 if __name__ == "__main__":
-    builder = tfds.builder(name="libero_10_no_noops", data_dir="/data/lzx/libero")
+    builder = tfds.builder(name="libero_10_no_noops", data_dir="/data/lzx/libero_new")
     generate_reasonings(builder, list(range(10)))

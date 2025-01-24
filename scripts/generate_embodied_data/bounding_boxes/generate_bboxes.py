@@ -20,7 +20,6 @@ parser.add_argument("--gpu", type=int)
 parser.add_argument("--splits", type=int, default=24)
 parser.add_argument("--data-path", type=str)
 parser.add_argument("--result-path", default="./bboxes")
-parser.add_argument("--start_idx", type=int)
 
 args = parser.parse_args()
 bbox_json_path = os.path.join(args.result_path, f"results_{args.id}_bboxes.json")
@@ -30,7 +29,7 @@ split_percents = 100 // args.splits
 start = args.id * split_percents
 end = 100 #(args.id + 1) * split_percents
 
-ds = tfds.load("libero_10_no_noops", data_dir="/data/lzx/libero", split=f"train[{start}%:{end}%]")
+ds = tfds.load("libero_10_no_noops", data_dir="/data/lzx/libero_new", split=f"train[{start}%:{end}%]")
 print(f"data size: {len(ds)}")
 print("Done.")
 
@@ -53,15 +52,15 @@ TEXT_THRESHOLD = 0.2
 
 bbox_results_json = {}
 for ep_idx, episode in enumerate(ds):
-    ep_idx = ep_idx + args.start_idx
 
-    # episode_id = episode["episode_metadata"]["episode_id"].numpy()
+    episode_id = episode["episode_metadata"]["episode_id"].numpy()
     file_path = episode["episode_metadata"]["file_path"].numpy().decode()
-    print(f"ID {args.id} starting ep: {ep_idx}, {file_path}")
+    print(f"ID {args.id} starting ep: {episode_id}, {file_path}")
 
     if file_path not in bbox_results_json.keys():
         bbox_results_json[file_path] = {}
-    episode_json = results_json[file_path][str(ep_idx)]
+
+    episode_json = results_json[file_path][str(episode_id)]
     description = episode_json["caption"]
 
     start = time.time()
@@ -97,13 +96,13 @@ for ep_idx, episode in enumerate(ds):
             b = list(b.astype(int))
             lg = round(lg, 5)
             bboxes.append((lg, p, b))
-            break
+            # break
 
         bboxes_list.append(bboxes)
         # break
     end = time.time()
     bbox_results_json[file_path][str(ep_idx)] = {
-        "episode_id": int(ep_idx),
+        "episode_id": int(episode_id),
         "file_path": file_path,
         "bboxes": bboxes_list,
     }

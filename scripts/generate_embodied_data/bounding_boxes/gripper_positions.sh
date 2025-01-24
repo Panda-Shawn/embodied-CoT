@@ -1,0 +1,1 @@
+CUDA_VISIBLE_DEVICES=1 python gripper_positions.py
