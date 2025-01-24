@@ -4,3 +4,4 @@ zmq
 google-generativeai
 opencv-python
 mediapy
+scikit-learn
