@@ -72,7 +72,7 @@ for ep_idx, episode in enumerate(ds):
         if step_idx == 0:
             lang_instruction = step["language_instruction"].numpy().decode()
         image = Image.fromarray(step["observation"]["image"].numpy())
-        print("seg_obj_text", seg_obj_text)
+        # print("seg_obj_text", seg_obj_text)
         inputs = processor(
             images=image,
             text=seg_obj_text, #post_process_caption(description, lang_instruction),

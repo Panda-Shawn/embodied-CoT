@@ -5,7 +5,8 @@ import numpy as np
 import torch
 from matplotlib import pyplot as plt
 from PIL import Image
-from transformers import SamModel, SamProcessor, pipeline
+from transformers import SamModel, SamProcessor
+from transformers import AutoModelForZeroShotObjectDetection, AutoProcessor
 import tensorflow_datasets as tfds
 import json
 from utils import NumpyFloatValuesEncoder
@@ -18,12 +19,14 @@ import os
 checkpoint = "google/owlvit-base-patch16"
 
 # detector 自动使用cuda:0
-detector = pipeline(model=checkpoint, task="zero-shot-object-detection")
+model = AutoModelForZeroShotObjectDetection.from_pretrained(checkpoint)
+processor = AutoProcessor.from_pretrained(checkpoint)
 
 sam_model = SamModel.from_pretrained("facebook/sam-vit-base")
 sam_processor = SamProcessor.from_pretrained("facebook/sam-vit-base")
 
-device = detector.device
+device = "cuda:0"
+model.to(device)
 sam_model.to(device)
 
 # print("Detector device:", detector.device)
@@ -32,21 +35,19 @@ sam_model.to(device)
 image_dims = (256, 256)
 image_label = "image"
 
+def get_bounding_boxes(images):
+    text_queries = [
+        ["the silver robotic gripper"] for _ in images
+    ]
+    inputs = processor(text=text_queries, images=images, return_tensors="pt")
+    
+    with torch.no_grad():
+        outputs = model(**inputs)
+        target_sizes = [x.size[::-1] for x in images]
+        results = processor.post_process_object_detection(outputs, threshold=0.1, target_sizes=target_sizes)
 
-def get_bounding_boxes(img, prompt="the silver robotic gripper"):
-
-    predictions = detector(img, candidate_labels=[prompt], threshold=0.01)
-  
-    return predictions
-
-
-def show_box(box, ax, meta, color):
-    x0, y0 = box["xmin"], box["ymin"]
-    w, h = box["xmax"] - box["xmin"], box["ymax"] - box["ymin"]
-    ax.add_patch(
-        matplotlib.patches.FancyBboxPatch((x0, y0), w, h, edgecolor=color, facecolor=(0, 0, 0, 0), lw=2, label="hehe")
-    )
-    ax.text(x0, y0 + 10, "{:.3f}".format(meta["score"]), color="white")
+    bboxes = [res["boxes"][0] for res in results]
+    return bboxes
 
 
 def get_median(mask, p):
@@ -119,46 +120,18 @@ def mask_to_pos_naive(mask):
     return min_pos % image_dims[0] - (image_dims[0] / 16), min_pos // image_dims[0] - (image_dims[0] / 24)
 
 
-def get_gripper_pos(episode_id, frame, builder, plot=True):
-    ds = builder.as_dataset(split=f"train[{episode_id}:{episode_id + 1}]")
-    episode = next(iter(ds))
-    images = [step["observation"][image_label] for step in episode["steps"]]
-
-    img = Image.fromarray(images[frame].numpy())
-    # print(img.size)  # 输出 (width, height)
-    predictions = get_bounding_boxes(img)
-
-    if plot:
-        fig, ax = plt.subplots(1, 1)
-        ax.imshow(img)
-
-        for prediction in predictions:
-            if prediction["score"] < 0.05:
-                continue
-            box = prediction["box"]
-            show_box(box, ax, prediction, "red")
-
-    if len(predictions) > 0:
-        mask = get_gripper_mask(img, predictions[0])
-        pos = mask_to_pos_naive(mask)
-
-        if plot:
-            plt.imshow(mask, alpha=0.5)
-            plt.scatter([pos[0]], [pos[1]])
-    else:
-        print("No valid bounding box")
-
-    if plot:
-        plt.show()
-
 COUNTER = 0
 def get_gripper_pos_raw(img):
     global COUNTER
     COUNTER += 1
     print("count get_gripper_pos_raw", COUNTER)
-    img = Image.fromarray(img.numpy())
     
-    predictions = get_bounding_boxes(img)
+    batch_images = [Image.fromarray(single_img.numpy()) for single_img in img]
+    start = time.time()
+    get_bounding_boxes(batch_images)
+    end = time.time()
+    print("time", end - start)
+    exit()
     
     if len(predictions) > 0:
         
@@ -177,6 +150,10 @@ def get_gripper_pos_raw(img):
 def process_trajectory(episode):
     images = [step["observation"][image_label] for step in episode["steps"]]
     states = [step["observation"]["state"] for step in episode["steps"]]
+
+    get_gripper_pos_raw(images)
+
+    exit()
 
     raw_trajectory = [(*get_gripper_pos_raw(img), state) for img, state in zip(images, states)]
 
