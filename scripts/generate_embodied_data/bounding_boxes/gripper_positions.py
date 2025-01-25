@@ -11,18 +11,32 @@ import json
 from utils import NumpyFloatValuesEncoder
 import time
 
+import os
+
+
+
 checkpoint = "google/owlvit-base-patch16"
+
+# detector 自动使用cuda:0
 detector = pipeline(model=checkpoint, task="zero-shot-object-detection")
+
 sam_model = SamModel.from_pretrained("facebook/sam-vit-base")
 sam_processor = SamProcessor.from_pretrained("facebook/sam-vit-base")
+
+device = detector.device
+sam_model.to(device)
+
+# print("Detector device:", detector.device)
+# print("SAM model device:", sam_model.device)
 
 image_dims = (256, 256)
 image_label = "image"
 
 
 def get_bounding_boxes(img, prompt="the black robotic gripper"):
-    predictions = detector(img, candidate_labels=[prompt], threshold=0.01)
 
+    predictions = detector(img, candidate_labels=[prompt], threshold=0.01)
+  
     return predictions
 
 
@@ -56,15 +70,26 @@ def get_gripper_mask(img, pred):
         round(pred["box"]["ymax"], 2),
     ]
 
+   
     inputs = sam_processor(img, input_boxes=[[[box]]], return_tensors="pt")
+    
+    # 将 inputs 移动到与模型相同的设备
+    inputs = {k: v.to(device) for k, v in inputs.items()}
 
+
+    # 使用模型进行推理
     with torch.no_grad():
         outputs = sam_model(**inputs)
 
+    # 将输出数据移动到 CPU
+    outputs.pred_masks = outputs.pred_masks.to("cpu")
+
+    # 后处理掩码
     mask = sam_processor.image_processor.post_process_masks(
         outputs.pred_masks, inputs["original_sizes"], inputs["reshaped_input_sizes"]
     )[0][0][0].numpy()
 
+   
     return mask
 
 
@@ -100,6 +125,7 @@ def get_gripper_pos(episode_id, frame, builder, plot=True):
     images = [step["observation"][image_label] for step in episode["steps"]]
 
     img = Image.fromarray(images[frame].numpy())
+    # print(img.size)  # 输出 (width, height)
     predictions = get_bounding_boxes(img)
 
     if plot:
@@ -131,16 +157,20 @@ def get_gripper_pos_raw(img):
     COUNTER += 1
     print("count get_gripper_pos_raw", COUNTER)
     img = Image.fromarray(img.numpy())
+    
     predictions = get_bounding_boxes(img)
-
+    
     if len(predictions) > 0:
+        
         mask = get_gripper_mask(img, predictions[0])
+       
         pos = mask_to_pos_naive(mask)
+        
     else:
         mask = np.zeros(image_dims)
         pos = (-1, -1)
         predictions = [None]
-
+   
     return (int(pos[0]), int(pos[1])), mask, predictions[0]
 
 
@@ -234,6 +264,8 @@ if __name__=="__main__":
 
         gripper_positions_json[file_path][int(episode_id)] = pr_pos
         end = time.time()
+        print(gripper_positions_json)
         with open(gripper_positions_json_path, "w") as f:
             json.dump(gripper_positions_json, f, cls=NumpyFloatValuesEncoder)
         print(f"finished ep ({ep_idx} / {len(ds)}). Elapsed time: {round(end - start, 2)}")
+        
