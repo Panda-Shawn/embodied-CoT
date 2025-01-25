@@ -1,47 +1,66 @@
 import json
-import os
-import re
-import time
 
-import google.generativeai as genai
-from google.api_core.exceptions import ResourceExhausted
-
-from scripts.generate_embodied_data.primitive_movements import get_move_primitives_episode
-from scripts.generate_embodied_data.gripper_positions import get_corrected_positions_episode
 import tensorflow_datasets as tfds
 import matplotlib
 import matplotlib.pyplot as plt
 
 
-def show_box(box, ax, meta, color):
-    x0, y0 = box["xmin"], box["ymin"]
-    w, h = box["xmax"] - box["xmin"], box["ymax"] - box["ymin"]
+def show_box(box, ax, score, text, color):
+    x0, y0 = box[0], box[1]
+    w, h = box[2] - box[0], box[3] - box[1]
     ax.add_patch(
         matplotlib.patches.FancyBboxPatch((x0, y0), w, h, edgecolor=color, facecolor=(0, 0, 0, 0), lw=2, label="hehe")
     )
-    ax.text(x0, y0 + 10, "{:.3f}".format(meta["score"]), color="white")
+    ax.text(x0, y0 + 10, f"{score:.3f}  {text}", color="white")
 
 
-def plot_bboxes(builder, episode_ids, save_path="reasonings.json"):
+def plot_bboxes():
+    ds = tfds.load("libero_10_no_noops", data_dir="/data/lzx/libero_new", split=f"train[{0}%:{100}%]")
+    print(f"data size: {len(ds)}")
+    print("Done.")
 
-    with open("bounding_boxes/bboxes/full_bboxes.json", "r") as bboxes_file:
-        bboxes = json.load(bboxes_file)
+    for ep_idx, episode in enumerate(ds):
 
+        episode_id = episode["episode_metadata"]["episode_id"].numpy()
+        file_path = episode["episode_metadata"]["file_path"].numpy().decode()
+        print(f"starting ep: {episode_id}, {file_path}")
 
-    for i in episode_ids:
-        entry = build_single_reasoning(i, builder, lm, captions_dict, bboxes, gripper_positions)
+        with open("bounding_boxes/descriptions/captions.json", "r") as captions_file:
+            captions_dict = json.load(captions_file)
 
-        if entry["metadata"]["file_path"] in reasonings.keys():
-            reasonings[entry["metadata"]["file_path"]][entry["metadata"]["episode_id"]] = entry
-        else:
-            reasonings[entry["metadata"]["file_path"]] = {entry["metadata"]["episode_id"]: entry}
+        with open("bounding_boxes/bboxes/full_bboxes.json", "r") as bboxes_file:
+            bboxes_dict = json.load(bboxes_file)
 
-        print("computed reasoning:", entry)
+        for step_idx, step in enumerate(episode["steps"]):
+            # Load the image
+            image = step["observation"]["image"].numpy()
+            
+            # Extract the caption and bounding boxes
+            caption = captions_dict[file_path][str(episode_id)]["caption"]
+            bboxes = bboxes_dict[file_path][str(episode_id)]["bboxes"][step_idx]
 
-    with open(save_path, "w") as out_f:
-        json.dump(reasonings, out_f)
+            # Plot the image using matplotlib
+            fig, ax = plt.subplots(1, figsize=(8, 8))
+            ax.imshow(image)
+            ax.axis("off")
+
+            # Draw bounding boxes
+            for score, text, bbox in bboxes:
+                show_box(bbox, ax, score, text, "red")
+
+            # Add caption as a title
+            # Add caption as multiline text
+            caption_text = "\n".join([caption[i:i+70] for i in range(0, len(caption), 70)])
+            fig.text(0.5, 0.01, caption_text, ha="center", fontsize=12, color="white", backgroundcolor="black")
+
+            # Save the image
+            output_path = f"vis_bboxes/output_ep_{episode_id}_step_{step_idx}.png"
+            plt.savefig(output_path, bbox_inches='tight', pad_inches=0)
+            plt.close()
+            print(f"Saved image with bounding boxes and caption to {output_path}")
+            break
 
 
 if __name__ == "__main__":
-    builder = tfds.builder(name="libero_10_no_noops", data_dir="/data/lzx/libero_new")
-    generate_reasonings(builder, list(range(10)))
+    
+    plot_bboxes()
