@@ -19,7 +19,7 @@ parser.add_argument("--id", type=int)
 parser.add_argument("--gpu", type=int)
 parser.add_argument("--splits", type=int, default=24)
 parser.add_argument("--data-path", type=str)
-parser.add_argument("--result-path", default="./bboxes_seg")
+parser.add_argument("--result-path", default="./bboxes")
 
 args = parser.parse_args()
 bbox_json_path = os.path.join(args.result_path, f"results_{args.id}_bboxes.json")

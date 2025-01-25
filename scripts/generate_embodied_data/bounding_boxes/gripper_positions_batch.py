@@ -40,6 +40,7 @@ def get_bounding_boxes(images):
         ["the silver robotic gripper"] for _ in images
     ]
     inputs = processor(text=text_queries, images=images, return_tensors="pt")
+    inputs = {k: v.to(device) for k, v in inputs.items()}
     
     with torch.no_grad():
         outputs = model(**inputs)

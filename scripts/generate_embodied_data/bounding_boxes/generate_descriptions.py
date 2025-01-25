@@ -16,7 +16,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--id", type=int)
 parser.add_argument("--gpu", type=int)
 parser.add_argument("--splits", default=4, type=int)
-parser.add_argument("--results-path", default="./descriptions_seg")
+parser.add_argument("--results-path", default="./descriptions")
 
 args = parser.parse_args()
 
