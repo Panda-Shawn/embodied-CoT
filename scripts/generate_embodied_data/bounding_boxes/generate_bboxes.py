@@ -120,5 +120,5 @@ for ep_idx, episode in enumerate(ds):
     with open(bbox_json_path, "w") as f:
         json.dump(bbox_results_json, f, cls=NumpyFloatValuesEncoder)
     print(f"ID {args.id} finished ep ({ep_idx} / {len(ds)}). Elapsed time: {round(end - start, 2)}")
-    print(f"Caption: {description}")
+    # print(f"Caption: {description}")
     # break
