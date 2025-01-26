@@ -156,14 +156,15 @@ def get_gripper_pos_raw(img):
     global COUNTER
     COUNTER += 1
     print("count get_gripper_pos_raw", COUNTER)
+    
     img = Image.fromarray(img.numpy())
     
     predictions = get_bounding_boxes(img)
     
     if len(predictions) > 0:
-        
+           
         mask = get_gripper_mask(img, predictions[0])
-       
+        
         pos = mask_to_pos_naive(mask)
         
     else:
@@ -179,7 +180,7 @@ def process_trajectory(episode):
     states = [step["observation"]["state"] for step in episode["steps"]]
 
     raw_trajectory = [(*get_gripper_pos_raw(img), state) for img, state in zip(images, states)]
-
+   
     prev_found = list(range(len(raw_trajectory)))
     next_found = list(range(len(raw_trajectory)))
 
@@ -216,12 +217,13 @@ def get_corrected_positions(episode_id, builder, plot=False):
 def get_corrected_positions_episode(episode, plot=False):
 
     t = process_trajectory(episode)
-
+  
     images = [step["observation"][image_label] for step in episode["steps"]]
     images = [img.numpy() for img in images]
 
     pos = [tr[0] for tr in t]
-
+    
+    
     points_2d = np.array(pos, dtype=np.float32)
     points_3d = np.array([tr[-1][:3] for tr in t])
 
@@ -258,13 +260,13 @@ if __name__=="__main__":
         print(f"starting ep: {episode_id}, {file_path}")
 
         pr_pos = get_corrected_positions_episode(episode)
-
+       
         if file_path not in gripper_positions_json.keys():
             gripper_positions_json[file_path] = {}
 
         gripper_positions_json[file_path][int(episode_id)] = pr_pos
         end = time.time()
-        print(gripper_positions_json)
+       
         with open(gripper_positions_json_path, "w") as f:
             json.dump(gripper_positions_json, f, cls=NumpyFloatValuesEncoder)
         print(f"finished ep ({ep_idx} / {len(ds)}). Elapsed time: {round(end - start, 2)}")
