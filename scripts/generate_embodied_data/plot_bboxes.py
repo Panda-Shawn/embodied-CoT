@@ -15,7 +15,7 @@ def show_box(box, ax, score, text, color):
 
 
 def plot_bboxes():
-    ds = tfds.load("libero_10_no_noops", data_dir="/data/lzx/libero_new", split=f"train[{0}%:{100}%]")
+    ds = tfds.load("libero_spatial_no_noops", data_dir="/data/lzx/libero_new", split=f"train[{0}%:{100}%]")
     print(f"data size: {len(ds)}")
     print("Done.")
 
@@ -30,6 +30,10 @@ def plot_bboxes():
 
         with open("bounding_boxes/bboxes/full_bboxes.json", "r") as bboxes_file:
             bboxes_dict = json.load(bboxes_file)
+
+        if file_path not in bboxes_dict.keys() or str(episode_id) not in bboxes_dict[file_path].keys():
+            print(f"File path {file_path} and episode id {episode_id} not found in full_bboxes.json")
+            continue
 
         for step_idx, step in enumerate(episode["steps"]):
             # Load the image

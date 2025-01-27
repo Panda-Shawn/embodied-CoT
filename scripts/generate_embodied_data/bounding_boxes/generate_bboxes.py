@@ -29,7 +29,7 @@ split_percents = 100 // args.splits
 start = args.id * split_percents
 end = (args.id + 1) * split_percents
 
-ds = tfds.load("libero_10_no_noops", data_dir="/data/lzx/libero_new", split=f"train[{start}%:{end}%]")
+ds = tfds.load("libero_spatial_no_noops", data_dir="/data/lzx/libero_new", split=f"train[{start}%:{end}%]")
 print(f"data size: {len(ds)}")
 print("Done.")
 

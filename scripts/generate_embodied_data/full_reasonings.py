@@ -77,7 +77,8 @@ def build_prompt(features, language_instruction, caption=None, list_only_moves=F
             '- "state_3d" are the current 3d coordinates of the robotic arm end effector; '
             "moving forward increases the first coordinate; moving left increases the second "
             "coordinate; moving up increases the third coordinate,\n"
-            '- "move_primitive" describes the move that is about to be executed,\n'
+            '- "move_primitive" describes the move under the frame of the robot that is about to be executed,\n'
+            #'- "move_primitive" describes the move that is about to be executed,\n'
             '- "gripper_position" denotes the location of the gripper in the 256x256 image observation'
         )
 

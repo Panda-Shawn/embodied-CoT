@@ -147,3 +147,6 @@ dmypy.json
 # Caches and Datasets
 cache/
 data/
+
+scripts/generate_embodied_data/vis*
+scripts/generate_embodied_data/gripper_postions/vis*
