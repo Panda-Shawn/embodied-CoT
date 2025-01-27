@@ -2,13 +2,16 @@ import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow_datasets as tfds
 import json
+import os
 
 
-dataset_name = "libero_10_no_noops"
-ds = tfds.load(dataset_name, data_dir="/data/lzx/libero_new", split=f"train[{0}%:{100}%]")
+dataset_name = "libero_goal_no_noops"
+ds = tfds.load(dataset_name, data_dir="/data2/lzixuan/libero_new", split=f"train[{0}%:{100}%]")
 print(f"data size: {len(ds)}")
 print("Done.")
 gripper_positions_json_path = "./gripper_positions/gripper_positions.json"
+vis_dir = "./vis_gpos"
+os.makedirs(vis_dir, exist_ok=True)
 
 with open(gripper_positions_json_path, "r") as gripper_positions_file:
     gripper_positions = json.load(gripper_positions_file)
@@ -30,7 +33,7 @@ for ep_idx, episode in enumerate(ds):
         plt.scatter(gripper_position[0], gripper_position[1], c='red', s=50, label='Gripper Position')  # 标记点
         plt.legend()
         plt.axis("off")
-        plt.savefig(f"./vis_gpos/step_{step_idx}.png", bbox_inches='tight', dpi=300)  # bbox_inches 去掉多余边距，dpi 控制分辨率
+        plt.savefig(os.path.join(vis_dir, f"step_{step_idx}.png"), bbox_inches='tight', dpi=300)  # bbox_inches 去掉多余边距，dpi 控制分辨率
         plt.close()
 
     break
