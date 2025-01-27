@@ -10,7 +10,7 @@ from scripts.generate_embodied_data.gripper_postions.cam_utils import calculate_
 image_label = "image"
 
 if __name__=="__main__":
-    dataset_name = "libero_10_no_noops"
+    dataset_name = "libero_spatial_no_noops" # "libero_10_no_noops"
     ds = tfds.load(dataset_name, data_dir="/data/lzx/libero_new", split=f"train[{0}%:{100}%]")
     print(f"data size: {len(ds)}")
     print("Done.")
@@ -28,7 +28,10 @@ if __name__=="__main__":
         for step in episode["steps"]:
             state = step["observation"]["state"].numpy()
             gripper_positions_3d = state[:3]
-            scene_name = file_path.split("/")[-1].split("SCENE")[0] + "SCENE"
+            if "SCENE" in file_path:
+                scene_name = file_path.split("/")[-1].split("SCENE")[0] + "SCENE"
+            elif "libero_spatial" in file_path:
+                scene_name = "SCENE"
             camera_pos = LIBERO_CAM_POSES[dataset_name][scene_name]["agentview"]["pos"]
             camera_quat = LIBERO_CAM_POSES[dataset_name][scene_name]["agentview"]["quat"]
 

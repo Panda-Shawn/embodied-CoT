@@ -9,11 +9,13 @@ from google.api_core.exceptions import ResourceExhausted
 from scripts.generate_embodied_data.primitive_movements import get_move_primitives_episode
 from scripts.generate_embodied_data.gripper_positions import get_corrected_positions_episode
 import tensorflow_datasets as tfds
+from tqdm import tqdm
+from scripts.generate_embodied_data.bounding_boxes.utils import NumpyFloatValuesEncoder
 
 
 class Gemini:
     def __init__(self):
-        api_key = "PUT_KEY_HERE"
+        api_key = "AIzaSyAl6_EVlpP40-0NYQeeLOU8ggADf3xO4Go"
         genai.configure(api_key=api_key)
 
         self.model = genai.GenerativeModel("gemini-1.5-flash")
@@ -195,11 +197,11 @@ def get_reasoning_dict(features, metadata, lm):
     caption = metadata["caption"] if "caption" in metadata.keys() else None
 
     prompt = build_prompt(features, language_instruction, caption=caption, list_only_moves=True)
-    print("metadata:", metadata, "\nprompt:", prompt)
+    # print("metadata:", metadata, "\nprompt:", prompt)
 
     reasoning_output = lm.generate(prompt)
 
-    print("reasoning:", reasoning_output)
+    # print("reasoning:", reasoning_output)
 
     return extract_reasoning_dict(reasoning_output)
 
@@ -215,10 +217,11 @@ def build_single_reasoning(episode_id, builder, lm, captions, bboxes, gripper_po
     move_primitives = get_move_primitives_episode(episode)
     ft["move_primitive"] = [move[0] for move in move_primitives]
 
-    bboxes = bboxes[episode["episode_metadata"]["file_path"].numpy().decode()][str(int(episode["episode_metadata"]["episode_id"].numpy()))]
-    ft["bboxes"] = [move[0] for move in move_primitives]
+    # bboxes_episode = bboxes[episode["episode_metadata"]["file_path"].numpy().decode()][str(int(episode["episode_metadata"]["episode_id"].numpy()))]
+    # ft["bboxes"] = bboxes_episode["bboxes"]
 
-    # gripper_positions = get_corrected_positions_episode(episode)
+    # gripper_position = gripper_positions[episode["episode_metadata"]["file_path"].numpy().decode()][str(int(episode["episode_metadata"]["episode_id"].numpy()))]
+    # ft["gripper_position"] = gripper_position
 
     # import pdb; pdb.set_trace()
 
@@ -251,26 +254,29 @@ def generate_reasonings(builder, episode_ids, save_path="reasonings.json"):
     with open("bounding_boxes/descriptions/captions.json", "r") as captions_file:
         captions_dict = json.load(captions_file)
 
-    with open("bounding_boxes/bboxes/full_bboxes.json", "r") as bboxes_file:
-        bboxes = json.load(bboxes_file)
+    # with open("bounding_boxes/bboxes/full_bboxes.json", "r") as bboxes_file:
+    #     bboxes = json.load(bboxes_file)
 
-    with open("./gripper_positions.json", "r") as gripper_positions_file:
-        gripper_positions = json.load(gripper_positions_file)
+    # with open("gripper_positions/gripper_positions/gripper_positions.json", "r") as gripper_positions_file:
+    #     gripper_positions = json.load(gripper_positions_file)
 
-    for i in episode_ids:
-        entry = build_single_reasoning(i, builder, lm, captions_dict, bboxes, gripper_positions)
+    # use tqdm
+    # for i in episode_ids:
+    for i in tqdm(episode_ids, desc="Generating reasonings"):
+        entry = build_single_reasoning(i, builder, lm, captions_dict, None, None)
 
         if entry["metadata"]["file_path"] in reasonings.keys():
             reasonings[entry["metadata"]["file_path"]][entry["metadata"]["episode_id"]] = entry
         else:
             reasonings[entry["metadata"]["file_path"]] = {entry["metadata"]["episode_id"]: entry}
 
-        print("computed reasoning:", entry)
+        # print("computed reasoning:", entry)
+        # import pdb;pdb.set_trace()
 
     with open(save_path, "w") as out_f:
-        json.dump(reasonings, out_f)
+        json.dump(reasonings, out_f, cls=NumpyFloatValuesEncoder)
 
 
 if __name__ == "__main__":
-    builder = tfds.builder(name="libero_10_no_noops", data_dir="/data/lzx/libero_new")
-    generate_reasonings(builder, list(range(10)))
+    builder = tfds.builder(name="libero_spatial_no_noops", data_dir="/data/lzx/libero_new")
+    generate_reasonings(builder, list(range(1)))
