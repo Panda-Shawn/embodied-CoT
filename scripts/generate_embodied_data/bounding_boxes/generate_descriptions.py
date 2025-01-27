@@ -47,7 +47,8 @@ results_json_path = os.path.join(args.results_path, f"results_{args.id}.json")
 
 
 def create_user_prompt(lang_instruction):
-    user_prompt = "Briefly describe the things in this scene and their spatial relations to each other."
+    user_prompt = "Briefly describe the things in this scene and their spatial relations to each other under the frame of the robot."
+    # user_prompt = "Briefly describe the things in this scene and their spatial relations to each other."
     # user_prompt = "Briefly describe the objects in this scene."]
     lang_instruction = lang_instruction.strip()
     if len(lang_instruction) > 0 and lang_instruction[-1] == ".":
