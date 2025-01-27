@@ -5,7 +5,7 @@ from tqdm import tqdm
 
 bbox_json_list = []
 for file in tqdm(os.listdir("./bboxes")):
-    if "results" in file:
+    if "results" in file and "break" not in file:
         with open(os.path.join("./bboxes", file), "r") as f:
             bbox_json = json.load(f)
         bbox_json_list.append(bbox_json)

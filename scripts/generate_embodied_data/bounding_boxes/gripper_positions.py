@@ -33,7 +33,7 @@ image_dims = (256, 256)
 image_label = "image"
 
 
-def get_bounding_boxes(img, prompt="the black robotic gripper"):
+def get_bounding_boxes(img, prompt="the silver robotic gripper"):
 
     predictions = detector(img, candidate_labels=[prompt], threshold=0.01)
   
@@ -264,7 +264,7 @@ if __name__=="__main__":
         if file_path not in gripper_positions_json.keys():
             gripper_positions_json[file_path] = {}
 
-        gripper_positions_json[file_path][int(episode_id)] = pr_pos
+        gripper_positions_json[file_path][int(episode_id)] = pr_pos.tolist()
         end = time.time()
        
         with open(gripper_positions_json_path, "w") as f:

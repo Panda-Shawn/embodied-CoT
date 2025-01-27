@@ -54,6 +54,12 @@ def create_user_prompt(lang_instruction):
         lang_instruction = lang_instruction[:-1]
     if len(lang_instruction) > 0 and " " in lang_instruction:
         user_prompt = f"The robot task is: '{lang_instruction}.' " + user_prompt
+    
+    return user_prompt
+
+
+def create_seg_prompt(caption):
+    user_prompt = f"The caption is: '{caption}' List only the objects found in the caption separated by dots."
     return user_prompt
 
 
@@ -83,12 +89,26 @@ for i, episode in tqdm(enumerate(ds)):
             max_new_tokens=64,
             min_length=1,
         )
+
+        user_prompt = create_seg_prompt(caption)
+        prompt_builder = vlm.get_prompt_builder()
+        prompt_builder.add_turn(role="human", message=user_prompt)
+        prompt_text = prompt_builder.get_prompt()
+        seg_obj = vlm.generate(
+            image,
+            prompt_text,
+            do_sample=True,
+            temperature=0.4,
+            max_new_tokens=64,
+            min_length=1,
+        )
         break
 
     episode_json = {
         "episode_id": int(episode_id),
         "file_path": file_path,
         "caption": caption,
+        "seg_obj": seg_obj
     }
 
     if file_path not in results_json.keys():

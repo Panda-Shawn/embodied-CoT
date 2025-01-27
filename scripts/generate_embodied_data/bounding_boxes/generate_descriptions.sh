@@ -1,0 +1,1 @@
+CUDA_VISIBLE_DEVICES=1 python generate_descriptions.py --id 0 --gpu 0 --splits 1
