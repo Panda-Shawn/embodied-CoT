@@ -15,7 +15,7 @@ from scripts.generate_embodied_data.bounding_boxes.utils import NumpyFloatValues
 
 class Gemini:
     def __init__(self):
-        api_key = "AIzaSyAl6_EVlpP40-0NYQeeLOU8ggADf3xO4Go"
+        api_key = ""
         genai.configure(api_key=api_key)
 
         self.model = genai.GenerativeModel("gemini-1.5-flash")
