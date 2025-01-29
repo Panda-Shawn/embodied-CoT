@@ -15,7 +15,7 @@ from scripts.generate_embodied_data.bounding_boxes.utils import NumpyFloatValues
 
 class Gemini:
     def __init__(self):
-        api_key = ""
+        api_key = "AIzaSyAl6_EVlpP40-0NYQeeLOU8ggADf3xO4Go"
         genai.configure(api_key=api_key)
 
         self.model = genai.GenerativeModel("gemini-1.5-flash")
@@ -170,7 +170,7 @@ break_line}trajectory specified by `trajectory_features`.
 
 
 def find_task_occurrences(input_string, tags):
-    pattern = r"(\d+):"
+    pattern = r"(\d+):\s*\"?"
     for tag in tags:
         pattern = pattern + r"\s*<" + tag + r">([^<]*)<\/" + tag + ">"
 
@@ -278,5 +278,6 @@ def generate_reasonings(builder, episode_ids, save_path="reasonings.json"):
 
 
 if __name__ == "__main__":
-    builder = tfds.builder(name="libero_spatial_no_noops", data_dir="/data/lzx/libero_new")
-    generate_reasonings(builder, list(range(1)))
+    builder = tfds.builder(name="libero_10_no_noops", data_dir="/data/lzx/libero_new")
+    slides = ()
+    generate_reasonings(builder, list(range(1)), save_path="./full_reasonings/full_reasonings.json")

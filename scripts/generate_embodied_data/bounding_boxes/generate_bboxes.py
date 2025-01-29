@@ -19,7 +19,7 @@ parser.add_argument("--id", type=int)
 parser.add_argument("--gpu", type=int)
 parser.add_argument("--splits", type=int, default=24)
 parser.add_argument("--data-path", type=str)
-parser.add_argument("--result-path", default="./bboxes")
+parser.add_argument("--result-path", default="./bboxes_object")
 
 args = parser.parse_args()
 bbox_json_path = os.path.join(args.result_path, f"results_{args.id}_bboxes.json")
@@ -29,12 +29,12 @@ split_percents = 100 // args.splits
 start = args.id * split_percents
 end = (args.id + 1) * split_percents
 
-ds = tfds.load("libero_spatial_no_noops", data_dir="/data/lzx/libero_new", split=f"train[{start}%:{end}%]")
+ds = tfds.load("libero_object_no_noops", data_dir="/data/lzx/libero_new", split=f"train[{start}%:{end}%]")
 print(f"data size: {len(ds)}")
 print("Done.")
 
 print("Loading Prismatic descriptions...")
-results_json_path = "./descriptions/full_descriptions.json"
+results_json_path = "./descriptions_object/full_descriptions.json"
 with open(results_json_path, "r") as f:
     results_json = json.load(f)
 print("Done.")

@@ -4,7 +4,7 @@ import os
 full_json = {}
 count = 0
 
-path_to_desc = "./descriptions"
+path_to_desc = "./descriptions_object"
 path_to_full_desc = os.path.join(path_to_desc, "full_descriptions.json")
 
 for json_f in os.listdir(path_to_desc):

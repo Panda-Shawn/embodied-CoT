@@ -16,7 +16,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--id", type=int)
 parser.add_argument("--gpu", type=int)
 parser.add_argument("--splits", default=4, type=int)
-parser.add_argument("--results-path", default="./descriptions")
+parser.add_argument("--results-path", default="./descriptions_object")
 
 args = parser.parse_args()
 
@@ -33,7 +33,7 @@ end = (args.id + 1) * split_percents
 
 # Load Bridge V2
 ds = tfds.load(
-    "libero_10_no_noops",
+    "libero_object_no_noops",
     data_dir="/data/lzx/libero_new",
     split=f"train[{start}%:{end}%]",
 )
