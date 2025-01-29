@@ -22,7 +22,7 @@ def calculate_2d_position(gripper_pos, camera_pos, camera_quat, camera_intrinsic
     R_camera = R.from_quat(camera_quat, scalar_first=scalar_first).as_matrix()
 
     # Step 2: 计算相机坐标系中的 gripper 位置
-    # 世界坐标系到相机坐标系转换：p_camera = R.T * p_world + t
+    # 世界坐标系到相机坐标系转换：p_camera = R.T * (p_world - t)
     t_camera = np.array(camera_pos)  # 相机位置 (平移向量)
     gripper_pos = np.array(gripper_pos)  # 夹爪位置 (世界坐标系)
     gripper_camera = R_camera.T @ (gripper_pos - t_camera)

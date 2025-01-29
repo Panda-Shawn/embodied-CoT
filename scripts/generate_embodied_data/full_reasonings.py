@@ -16,6 +16,7 @@ from scripts.generate_embodied_data.bounding_boxes.utils import NumpyFloatValues
 class Gemini:
     def __init__(self):
         api_key = "AIzaSyAl6_EVlpP40-0NYQeeLOU8ggADf3xO4Go"
+        api_key = "AIzaSyAl6_EVlpP40-0NYQeeLOU8ggADf3xO4Go"
         genai.configure(api_key=api_key)
 
         self.model = genai.GenerativeModel("gemini-1.5-flash")
@@ -188,6 +189,7 @@ def extract_reasoning_dict(reasoning_output, tags=("task", "plan", "subtask", "s
 
     for match in matches:
         trajectory[int(match[0])] = dict(zip(tags, match[1:]))
+    # import pdb; pdb.set_trace()
 
     return trajectory
 
@@ -200,6 +202,7 @@ def get_reasoning_dict(features, metadata, lm):
     # print("metadata:", metadata, "\nprompt:", prompt)
 
     reasoning_output = lm.generate(prompt)
+    # import pdb; pdb.set_trace()
 
     # print("reasoning:", reasoning_output)
 
@@ -240,7 +243,7 @@ def build_single_reasoning(episode_id, builder, lm, captions, bboxes, gripper_po
     return entry
 
 
-def generate_reasonings(builder, episode_ids, save_path="reasonings.json"):
+def generate_reasonings(builder, episode_ids, save_path="./full_reasonings/reasonings.json"):
     reasonings = dict()
     lm = Gemini()
 
@@ -278,6 +281,7 @@ def generate_reasonings(builder, episode_ids, save_path="reasonings.json"):
 
 
 if __name__ == "__main__":
-    builder = tfds.builder(name="libero_10_no_noops", data_dir="/data/lzx/libero_new")
-    slides = ()
-    generate_reasonings(builder, list(range(1)), save_path="./full_reasonings/full_reasonings.json")
+    builder = tfds.builder(name="libero_10_no_noops", data_dir="/data2/lzixuan/libero_new")
+    # import pdb;pdb.set_trace()
+    slides = (240, 379)
+    generate_reasonings(builder, list(range(*slides)), save_path=f"./full_reasonings/reasonings_{str(slides[0])}_{str(slides[1])}.json")

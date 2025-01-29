@@ -1,20 +1,20 @@
 import tensorflow_datasets as tfds
 import json
-from scripts.generate_embodied_data.bounding_boxes.utils import NumpyFloatValuesEncoder
 import time
 
-from scripts.generate_embodied_data.gripper_postions.libero_cam_pose import LIBERO_CAM_POSES, IMAGE_SIZE
-from scripts.generate_embodied_data.gripper_postions.cam_utils import calculate_2d_position, calculate_camera_intrinsics
+from libero_cam_pose import LIBERO_CAM_POSES, IMAGE_SIZE
+from cam_utils import calculate_2d_position, calculate_camera_intrinsics
+import os
 
-
-image_label = "image"
 
 if __name__=="__main__":
-    dataset_name = "libero_spatial_no_noops" # "libero_10_no_noops"
-    ds = tfds.load(dataset_name, data_dir="/data/lzx/libero_new", split=f"train[{0}%:{100}%]")
+    dataset_name = "libero_object_no_noops" # "libero_10_no_noops"
+    ds = tfds.load(dataset_name, data_dir="/data2/lzixuan/libero_new", split=f"train[{0}%:{100}%]")
     print(f"data size: {len(ds)}")
     print("Done.")
-    gripper_positions_json_path = "./gripper_positions/gripper_positions.json"
+    gripper_positions_dir = "./gripper_positions"
+    os.makedirs(gripper_positions_dir, exist_ok=True)
+    gripper_positions_json_path = os.path.join(gripper_positions_dir, "gripper_positions.json")
 
     start = time.time()
     gripper_positions_json = {}
@@ -30,7 +30,7 @@ if __name__=="__main__":
             gripper_positions_3d = state[:3]
             if "SCENE" in file_path:
                 scene_name = file_path.split("/")[-1].split("SCENE")[0] + "SCENE"
-            elif "libero_spatial" in file_path:
+            else:
                 scene_name = "SCENE"
             camera_pos = LIBERO_CAM_POSES[dataset_name][scene_name]["agentview"]["pos"]
             camera_quat = LIBERO_CAM_POSES[dataset_name][scene_name]["agentview"]["quat"]
@@ -50,6 +50,6 @@ if __name__=="__main__":
         gripper_positions_json[file_path][int(episode_id)] = gripper_pos
         end = time.time()
         with open(gripper_positions_json_path, "w") as f:
-            json.dump(gripper_positions_json, f, cls=NumpyFloatValuesEncoder)
+            json.dump(gripper_positions_json, f)
         print(f"finished ep ({ep_idx} / {len(ds)}). Elapsed time: {round(end - start, 2)}")
         
