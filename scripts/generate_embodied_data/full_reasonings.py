@@ -280,5 +280,7 @@ def generate_reasonings(builder, episode_ids, save_path="./full_reasonings/reaso
 
 
 if __name__ == "__main__":
-    builder = tfds.builder(name="libero_spatial_no_noops", data_dir="/data2/lzixuan/libero_new")
-    generate_reasonings(builder, list(range(432)))
+    builder = tfds.builder(name="libero_10_no_noops", data_dir="/data2/lzixuan/libero_new")
+    # import pdb;pdb.set_trace()
+    slides = (240, 379)
+    generate_reasonings(builder, list(range(*slides)), save_path=f"./full_reasonings/reasonings_{str(slides[0])}_{str(slides[1])}.json")
