@@ -5,11 +5,11 @@ import json
 import os
 
 
-dataset_name = "libero_goal_no_noops"
-ds = tfds.load(dataset_name, data_dir="/data2/lzixuan/libero_new", split=f"train[{0}%:{100}%]")
+dataset_name = "libero_spatial_no_noops"
+ds = tfds.load(dataset_name, data_dir="/data/lzx/libero_new", split=f"train[{0}%:{100}%]")
 print(f"data size: {len(ds)}")
 print("Done.")
-gripper_positions_json_path = "./gripper_positions/gripper_positions.json"
+gripper_positions_json_path = "./gripper_positions_spatial/gripper_positions.json"
 vis_dir = "./vis_gpos"
 os.makedirs(vis_dir, exist_ok=True)
 
@@ -21,6 +21,9 @@ for ep_idx, episode in enumerate(ds):
     episode_id = episode["episode_metadata"]["episode_id"].numpy()
     file_path = episode["episode_metadata"]["file_path"].numpy().decode()
     print(f"starting ep: {episode_id}, {file_path}")
+
+    if episode_id != 1:
+        continue
 
     gripper_pos = []
     for step_idx, step in enumerate(episode["steps"]):
