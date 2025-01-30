@@ -1,1 +1,1 @@
-CUDA_VISIBLE_DEVICES=7 python full_reasonings.py
+CUDA_VISIBLE_DEVICES=7HF_ENDPOINT=https://hf-mirror.com CUDA_VISIBLE_DEVICES=7 python full_reasonings.py

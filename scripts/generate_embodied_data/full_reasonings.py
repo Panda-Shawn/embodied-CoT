@@ -238,7 +238,7 @@ def build_single_reasoning(episode_id, builder, lm, captions, bboxes, gripper_po
     mt["caption"] = captions[mt["file_path"]][mt["episode_id"]]["caption"]
 
     if errors is not None:
-        if mt["file_path"] in errors.keys() and mt["episode_id"] in errors[mt["file_path"]].keys():
+        if mt["file_path"] in errors.keys() and mt["episode_id"] in errors[mt["file_path"]]:
             reasoning = get_reasoning_dict(ft, mt, lm)
         else:
             reasoning = None
@@ -249,7 +249,7 @@ def build_single_reasoning(episode_id, builder, lm, captions, bboxes, gripper_po
     return entry
 
 
-def generate_reasonings(builder, episode_ids, save_path="./full_reasonings/reasonings.json"):
+def generate_reasonings(builder, episode_ids, save_path="./full_reasonings/reasonings.json", dataset="spatial"):
     reasonings = dict()
     lm = Gemini()
 
@@ -260,7 +260,7 @@ def generate_reasonings(builder, episode_ids, save_path="./full_reasonings/reaso
 
         print("loaded reasonings:", sum([len(v) for v in reasonings.values()]), "entries")
 
-    with open("bounding_boxes/descriptions/captions.json", "r") as captions_file:
+    with open(f"bounding_boxes/descriptions_{dataset}/captions.json", "r") as captions_file:
         captions_dict = json.load(captions_file)
 
     # with open("bounding_boxes/bboxes/full_bboxes.json", "r") as bboxes_file:
@@ -269,7 +269,7 @@ def generate_reasonings(builder, episode_ids, save_path="./full_reasonings/reaso
     # with open("gripper_positions/gripper_positions/gripper_positions.json", "r") as gripper_positions_file:
     #     gripper_positions = json.load(gripper_positions_file)
 
-    with open("./full_reasonings/errors.json", "r") as errors_file:
+    with open(f"./full_reasonings/errors_{dataset}.json", "r") as errors_file:
         errors = json.load(errors_file)
 
     # use tqdm
@@ -290,7 +290,9 @@ def generate_reasonings(builder, episode_ids, save_path="./full_reasonings/reaso
 
 
 if __name__ == "__main__":
-    builder = tfds.builder(name="libero_goal_no_noops", data_dir="/data2/lzixuan/libero_new")
+    dataset_name = "libero_spatial_no_noops"
+    builder = tfds.builder(name=dataset_name, data_dir="/data2/lzixuan/libero_new")
+    dataset = dataset_name.split("_")[1]
     # import pdb;pdb.set_trace()
-    slides = (0, 428)
-    generate_reasonings(builder, list(range(*slides)), save_path=f"./full_reasonings/reasonings_{str(slides[0])}_{str(slides[1])}.json")
+    slides = (0, 432)
+    generate_reasonings(builder, list(range(*slides)), save_path=f"./error_reasonings/reasonings_{dataset}_{str(slides[0])}_{str(slides[1])}.json", dataset=dataset)
