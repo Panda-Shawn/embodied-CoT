@@ -24,11 +24,13 @@ def plot_bboxes():
         episode_id = episode["episode_metadata"]["episode_id"].numpy()
         file_path = episode["episode_metadata"]["file_path"].numpy().decode()
         print(f"starting ep: {episode_id}, {file_path}")
+        if episode_id != 1:
+            continue
 
-        with open("bounding_boxes/descriptions/captions.json", "r") as captions_file:
+        with open("bounding_boxes/descriptions_sp/captions.json", "r") as captions_file:
             captions_dict = json.load(captions_file)
 
-        with open("bounding_boxes/bboxes/full_bboxes.json", "r") as bboxes_file:
+        with open("bounding_boxes/bboxes_sp/full_bboxes.json", "r") as bboxes_file:
             bboxes_dict = json.load(bboxes_file)
 
         if file_path not in bboxes_dict.keys() or str(episode_id) not in bboxes_dict[file_path].keys():
@@ -62,7 +64,8 @@ def plot_bboxes():
             plt.savefig(output_path, bbox_inches='tight', pad_inches=0)
             plt.close()
             print(f"Saved image with bounding boxes and caption to {output_path}")
-            break
+            # break
+        # break
 
 
 if __name__ == "__main__":
