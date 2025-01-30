@@ -209,7 +209,7 @@ def get_reasoning_dict(features, metadata, lm):
     return extract_reasoning_dict(reasoning_output)
 
 
-def build_single_reasoning(episode_id, builder, lm, captions, bboxes, gripper_positions):
+def build_single_reasoning(episode_id, builder, lm, captions, bboxes, gripper_positions, errors):
     ds = builder.as_dataset(split=f"train[{episode_id}:{episode_id + 1}]")
     episode = next(iter(ds))
 
@@ -237,7 +237,13 @@ def build_single_reasoning(episode_id, builder, lm, captions, bboxes, gripper_po
 
     mt["caption"] = captions[mt["file_path"]][mt["episode_id"]]["caption"]
 
-    reasoning = get_reasoning_dict(ft, mt, lm)
+    if errors is not None:
+        if mt["file_path"] in errors.keys() and mt["episode_id"] in errors[mt["file_path"]].keys():
+            reasoning = get_reasoning_dict(ft, mt, lm)
+        else:
+            reasoning = None
+    else:
+        reasoning = get_reasoning_dict(ft, mt, lm)
     entry = {"reasoning": reasoning, "features": ft, "metadata": mt}
 
     return entry
@@ -263,10 +269,13 @@ def generate_reasonings(builder, episode_ids, save_path="./full_reasonings/reaso
     # with open("gripper_positions/gripper_positions/gripper_positions.json", "r") as gripper_positions_file:
     #     gripper_positions = json.load(gripper_positions_file)
 
+    with open("./full_reasonings/errors.json", "r") as errors_file:
+        errors = json.load(errors_file)
+
     # use tqdm
     # for i in episode_ids:
     for i in tqdm(episode_ids, desc="Generating reasonings"):
-        entry = build_single_reasoning(i, builder, lm, captions_dict, None, None)
+        entry = build_single_reasoning(i, builder, lm, captions_dict, None, None, errors)
 
         if entry["metadata"]["file_path"] in reasonings.keys():
             reasonings[entry["metadata"]["file_path"]][entry["metadata"]["episode_id"]] = entry
@@ -281,7 +290,7 @@ def generate_reasonings(builder, episode_ids, save_path="./full_reasonings/reaso
 
 
 if __name__ == "__main__":
-    builder = tfds.builder(name="libero_10_no_noops", data_dir="/data2/lzixuan/libero_new")
+    builder = tfds.builder(name="libero_goal_no_noops", data_dir="/data2/lzixuan/libero_new")
     # import pdb;pdb.set_trace()
-    slides = (240, 379)
+    slides = (0, 428)
     generate_reasonings(builder, list(range(*slides)), save_path=f"./full_reasonings/reasonings_{str(slides[0])}_{str(slides[1])}.json")

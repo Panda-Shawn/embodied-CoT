@@ -5,19 +5,20 @@ from tqdm import tqdm
 
 if __name__=="__main__":
     dataset_name = "libero_spatial_no_noops" # "libero_10_no_noops"
-    ds = tfds.load(dataset_name, data_dir="/data/lzx/libero_new", split=f"train[{0}%:{100}%]")
+    cat = dataset_name.split("_")[1]
+    ds = tfds.load(dataset_name, data_dir="/data2/lzixuan/libero_new", split=f"train[{0}%:{100}%]")
     print(f"data size: {len(ds)}")
     print("Done.")
 
-    save_path = "full_reasonings/final_reasonings.json"
+    save_path = f"full_reasonings/final_reasonings_{cat}.json"
 
-    with open("bounding_boxes/bboxes/full_bboxes.json", "r") as bboxes_file:
+    with open(f"bounding_boxes/bboxes_{cat}/full_bboxes.json", "r") as bboxes_file:
         bboxes = json.load(bboxes_file)
 
-    with open("gripper_positions/gripper_positions/gripper_positions.json", "r") as gripper_positions_file:
+    with open(f"gripper_positions/gripper_positions_{cat}/gripper_positions.json", "r") as gripper_positions_file:
         gripper_positions = json.load(gripper_positions_file)
 
-    with open("full_reasonings/reasonings.json", "r") as reasonings_file:
+    with open(f"full_reasonings/reasonings_{cat}.json", "r") as reasonings_file:
         reasonings = json.load(reasonings_file)
 
     gripper_positions_json = {}
