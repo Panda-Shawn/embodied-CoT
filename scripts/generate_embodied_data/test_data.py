@@ -1,7 +1,7 @@
 import json
 
 
-raw_dict = json.load(open("/home/nus/embodied-CoT/scripts/generate_embodied_data/final_reasonings/reasonings_object.json", "r"))
+raw_dict = json.load(open("/home/nus/embodied-CoT/scripts/generate_embodied_data/final_reasonings/reasonings_10.json", "r"))
 
 num_skip = 0
 
