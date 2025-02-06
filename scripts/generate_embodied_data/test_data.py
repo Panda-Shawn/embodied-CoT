@@ -1,7 +1,7 @@
 import json
 
 
-raw_dict = json.load(open("/data/lzx/embodied-CoT/scripts/generate_embodied_data/final_reasonings/reasonings_spatial.json", "r"))
+raw_dict = json.load(open("/home/nus/embodied-CoT/scripts/generate_embodied_data/final_reasonings/reasonings_object.json", "r"))
 
 num_skip = 0
 
@@ -23,7 +23,7 @@ for file_name in raw_dict.keys():
         len_box = len(raw_dict[file_name][episode_id]["features"]["bboxes"])
 
         if len_reasoning != len_gpos or len_reasoning != len_move or len_reasoning != len_box:
-            print(f"Episode {episode_id} in {file_name} has different lengths: reasoning {len_reasoning}, gpos {len_gpos}, move {len_move}, box {len_box}")
+            print(f"{num_count}: Episode {episode_id} in {file_name} has different lengths: reasoning {len_reasoning}, gpos {len_gpos}, move {len_move}, box {len_box}")
 
             num_diff += 1
 

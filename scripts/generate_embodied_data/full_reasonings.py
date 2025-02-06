@@ -155,7 +155,7 @@ break_line}that decision, and how it should be done. Place it within a tag <subt
 - Describe the current primitive movement of the arm that needs to be executed, and place it inside a tag <move>.
 - Describe why the chosen movement should be executed now and which features of the current environment influence that {
 break_line}decision. Place it inside a tag <move_reason>.
-Please make sure that each tag has both an opening and an closing tag, e.g., <task>...</task>.
+Please make sure that each tag has both an opening and an closing tag, e.g., <task>...</task>. Please also ensure that the number of reasoning steps you generate matches the exact number of steps in the trajectory features.
 
 ## Task summary
 
@@ -243,16 +243,20 @@ def build_single_reasoning(episode_id, builder, lm, captions, bboxes, gripper_po
             # reasoning = get_reasoning_dict(ft, mt, lm)
             while True:
                 reasoning = get_reasoning_dict(ft, mt, lm)
-                if len(reasoning) != 0:
+                if len(reasoning) == len(ft["move_primitive"]):
                     break
+                # if len(reasoning) != 0:
+                #     break
         else:
             reasoning = dict()
     else:
         # reasoning = get_reasoning_dict(ft, mt, lm)
         while True:
             reasoning = get_reasoning_dict(ft, mt, lm)
-            if len(reasoning) != 0:
+            if len(reasoning) == len(ft["move_primitive"]):
                 break
+            # if len(reasoning) != 0:
+            #     break
     entry = {"reasoning": reasoning, "features": ft, "metadata": mt}
 
     return entry
@@ -277,12 +281,9 @@ def generate_reasonings(builder, episode_ids, save_path="./full_reasonings/reaso
 
     # with open("gripper_positions/gripper_positions/gripper_positions.json", "r") as gripper_positions_file:
     #     gripper_positions = json.load(gripper_positions_file)
-    if dataset == "object":
-        errors = None
-        print("Do not use errors.json for object dataset.")
-    else:
-        with open(f"./full_reasonings/errors_{dataset}.json", "r") as errors_file:
-            errors = json.load(errors_file)
+
+    with open(f"./full_reasonings/new_errors_{dataset}.json", "r") as errors_file:
+        errors = json.load(errors_file)
 
     # use tqdm
     # for i in episode_ids:
@@ -302,9 +303,9 @@ def generate_reasonings(builder, episode_ids, save_path="./full_reasonings/reaso
 
 
 if __name__ == "__main__":
-    dataset_name = "libero_object_no_noops"
+    dataset_name = "libero_spatial_no_noops"
     builder = tfds.builder(name=dataset_name, data_dir="/home/nus/libero_new")
     dataset = dataset_name.split("_")[1]
     # import pdb;pdb.set_trace()
-    slides = (0, 454)
+    slides = (0, 432)
     generate_reasonings(builder, list(range(*slides)), save_path=f"./requery_reasonings/reasonings_newprompt_{dataset}_{str(slides[0])}_{str(slides[1])}.json", dataset=dataset)
