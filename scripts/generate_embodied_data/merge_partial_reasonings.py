@@ -4,7 +4,7 @@ from tqdm import tqdm
 
 
 if __name__=="__main__":
-    dataset_name = "libero_goal_no_noops" # "libero_10_no_noops"
+    dataset_name = "libero_object_no_noops" # "libero_10_no_noops"
     cat = dataset_name.split("_")[1]
     ds = tfds.load(dataset_name, data_dir="/home/nus/libero_new", split=f"train[{0}%:{100}%]")
     print(f"data size: {len(ds)}")
