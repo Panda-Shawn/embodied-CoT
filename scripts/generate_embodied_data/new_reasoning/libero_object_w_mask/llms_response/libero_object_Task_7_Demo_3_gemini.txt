@@ -1,0 +1,41 @@
+## Task Description and High-Level Movements
+
+The completed task involved picking up a milk carton from a location on a surface and placing it into a basket.  The milk carton was positioned to the right and slightly lower than the robot's starting position. The basket was located further away, requiring movement to the left and possibly requiring a change in height.
+
+The robot likely followed these high-level movements:
+
+1. **Approach the milk:** (Steps 0-6) The robot needed to move to a position where it could grasp the milk carton. This involved navigating to the correct location relative to the milk carton.
+
+2. **Grasp the milk:** (Steps 4-6)  Once positioned correctly, the robot needed to close its gripper to securely grasp the milk carton.
+
+3. **Lift the milk:** (Steps 7-9) After grasping the milk, the robot had to lift it off the surface.
+
+4. **Move to the basket:** (Steps 9-11) The robot needed to move the milk carton, holding it securely, to a position above the basket.
+
+5. **Place the milk in the basket:** (Steps 11-14)  The robot needed to lower the milk carton into the basket and release it.
+
+6. **Return to home position:** (Steps 14-15) The robot ends its task by returning to an idle/home state.
+
+
+```python
+step_reasonings = {
+    0: "<task>Pick up the milk and place it in the basket.</task><plan>1. Approach the milk. 2. Grasp the milk. 3. Lift the milk. 4. Move to the basket. 5. Place the milk in the basket. 6. Return to home position.</plan><subtask>Approach the milk.</subtask><subtask_reason>The robot needs to position itself close enough to the milk to grasp it.</subtask_reason><move>move right</move><move_reason>This moves the robot closer to the target location of the milk.</move_reason>",
+    1: "<task>Pick up the milk and place it in the basket.</task><plan>1. Approach the milk. 2. Grasp the milk. 3. Lift the milk. 4. Move to the basket. 5. Place the milk in the basket. 6. Return to home position.</plan><subtask>Approach the milk.</subtask><subtask_reason>The robot is continuing to approach the milk.</subtask_reason><move>move right down</move><move_reason>This further refines the robot's position, getting closer to the milk carton, and accounts for the vertical position of the milk on the surface.</move_reason>",
+    2: "<task>Pick up the milk and place it in the basket.</task><plan>1. Approach the milk. 2. Grasp the milk. 3. Lift the milk. 4. Move to the basket. 5. Place the milk in the basket. 6. Return to home position.</plan><subtask>Approach the milk.</subtask><subtask_reason>Fine-tuning the approach to milk for optimal grip.</subtask_reason><move>move down</move><move_reason>This adjusts the vertical position to be aligned with the milk carton.</move_reason>",
+    3: "<task>Pick up the milk and place it in the basket.</task><plan>1. Approach the milk. 2. Grasp the milk. 3. Lift the milk. 4. Move to the basket. 5. Place the milk in the basket. 6. Return to home position.</plan><subtask>Approach the milk.</subtask><subtask_reason>The robot is in the final stage of approaching the milk, adjusting its position before grasping.</subtask_reason><move>move backward down</move><move_reason>Slight backward adjustment to ensure optimal gripping position before closing the gripper.</move_reason>",
+    4: "<task>Pick up the milk and place it in the basket.</task><plan>1. Grasp the milk. 2. Lift the milk. 3. Move to the basket. 4. Place the milk in the basket. 5. Return to home position.</plan><subtask>Grasp the milk.</subtask><subtask_reason>The robot is now in position to grasp the milk.</subtask_reason><move>move backward down, close gripper</move><move_reason>This closes the gripper to secure the milk carton while slightly adjusting position for a better hold.</move_reason>",
+    5: "<task>Pick up the milk and place it in the basket.</task><plan>1. Lift the milk. 2. Move to the basket. 3. Place the milk in the basket. 4. Return to home position.</plan><subtask>Grasp the milk.</subtask><subtask_reason>Ensuring a secure grip on the milk carton.</subtask_reason><move>move backward, close gripper</move><move_reason>Additional adjustment to ensure a firm grip before lifting.</move_reason>",
+    6: "<task>Pick up the milk and place it in the basket.</task><plan>1. Lift the milk. 2. Move to the basket. 3. Place the milk in the basket. 4. Return to home position.</plan><subtask>Grasp the milk.</subtask><subtask_reason>Final confirmation of secure grip before lifting.</subtask_reason><move>close gripper</move><move_reason>This action confirms that the gripper is fully closed around the milk carton.</move_reason>",
+    7: "<task>Pick up the milk and place it in the basket.</task><plan>1. Lift the milk. 2. Move to the basket. 3. Place the milk in the basket. 4. Return to home position.</plan><subtask>Lift the milk.</subtask><subtask_reason>The milk is grasped; now it needs to be lifted.</subtask_reason><move>stop</move><move_reason>A brief pause before lifting to ensure stability.</move_reason>",
+    8: "<task>Pick up the milk and place it in the basket.</task><plan>1. Lift the milk. 2. Move to the basket. 3. Place the milk in the basket. 4. Return to home position.</plan><subtask>Lift the milk.</subtask><subtask_reason>Lifting the milk carton clear of the surface.</subtask_reason><move>move up</move><move_reason>This lifts the milk carton.</move_reason>",
+    9: "<task>Place the milk in the basket.</task><plan>1. Move to the basket. 2. Place the milk in the basket. 3. Return to home position.</plan><subtask>Move to the basket.</subtask><subtask_reason>The milk is lifted; now it needs to be moved to the basket.</subtask_reason><move>move left up</move><move_reason>This moves the robot towards the basket while maintaining a sufficient height to clear obstacles.</move_reason>",
+    10: "<task>Place the milk in the basket.</task><plan>1. Move to the basket. 2. Place the milk in the basket. 3. Return to home position.</plan><subtask>Move to the basket.</subtask><subtask_reason>Approaching the basket.</subtask_reason><move>move left</move><move_reason>Continuing the movement towards the basket.</move_reason>",
+    11: "<task>Place the milk in the basket.</task><plan>1. Place the milk in the basket. 2. Return to home position.</plan><subtask>Place the milk in the basket.</subtask><subtask_reason>Robot is above the basket; ready to place the milk.</subtask_reason><move>move left down</move><move_reason>This lowers the robot arm above the basket.</move_reason>",
+    12: "<task>Place the milk in the basket.</task><plan>1. Place the milk in the basket. 2. Return to home position.</plan><subtask>Place the milk in the basket.</subtask><subtask_reason>Lowering the milk into the basket.</subtask_reason><move>move down</move><move_reason>This lowers the milk into the basket.</move_reason>",
+    13: "<task>Return to home position.</task><plan>1. Return to home position.</plan><subtask>Return to home position.</subtask><subtask_reason>The milk is in the basket; the robot should release it and return.</subtask_reason><move>move down, open gripper</move><move_reason>This releases the milk into the basket.</move_reason>",
+    14: "<task>Return to home position.</task><plan>1. Return to home position.</plan><subtask>Return to home position.</subtask><subtask_reason>Final step before returning to idle.</subtask_reason><move>open gripper</move><move_reason>Ensuring the gripper is open.</move_reason>",
+    15: "<task>Stop.</task><plan>1. Stop.</plan><subtask>Stop.</subtask><subtask_reason>Task completed.</subtask_reason><move>stop</move><move_reason>The task is complete.</move_reason>"
+}
+```
+
+FINISHED

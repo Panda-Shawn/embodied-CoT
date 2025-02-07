@@ -1,0 +1,44 @@
+## 1. Task Description and High-Level Movements
+
+The completed task involved picking up a stick of butter from the floor and placing it into a basket, also located on the floor.  Other objects present on the floor included bottles of sauce (likely various types), a can of tomato sauce, a bottle of orange juice, and a bottle of bbq sauce. Ketchup was on a table, irrelevant to the task. The robot needed to navigate around these objects to reach the butter and then the basket.
+
+The high-level movements identified from the trajectory are:
+
+1. **Approach Butter:** Steps 0-4.  The robot needs to move to a position where it can grasp the butter. This involves navigating around other objects on the floor to reach the butter's location without collision.
+
+2. **Grasp Butter:** Steps 4-5.  The robot needs to close its gripper around the butter.  This requires precise positioning above the butter before gripping it.
+
+3. **Lift Butter:** Steps 6-9. The robot needs to lift the butter from the floor. The movement involves moving upwards and potentially tilting slightly to avoid obstructions or maintain a stable grip.
+
+4. **Move to Basket:** Steps 9-12. The robot needs to move the butter to a position above the basket. This involves navigating around obstacles while keeping the butter securely held.
+
+5. **Position over Basket:** Steps 12-13. The robot needs to position the butter directly above the basket, preparing for placement.
+
+6. **Release Butter:** Steps 13-15. The robot needs to open its gripper to release the butter into the basket.
+
+7. **Retract:** Steps 16-17. The robot needs to move away from the basket.
+
+```python
+step_reasonings = {
+    0: "<task>Pick up the butter and place it in the basket.</task><plan>1. Approach butter. 2. Grasp butter. 3. Lift butter. 4. Move to basket. 5. Position over basket. 6. Release butter. 7. Retract.</plan><subtask>Approach butter.</subtask><subtask_reason>The robot must first navigate to the butter's location.</subtask_reason><move>move right</move><move_reason>Initial movement towards the general area of the butter.</move_reason>",
+    1: "<task>Pick up the butter and place it in the basket.</task><plan>1. Approach butter. 2. Grasp butter. 3. Lift butter. 4. Move to basket. 5. Position over basket. 6. Release butter. 7. Retract.</plan><subtask>Approach butter.</subtask><subtask_reason>Continuing to approach the butter, accounting for potential obstacles.</subtask_reason><move>move right down</move><move_reason>Adjusting trajectory to avoid collisions and approach the butter's location.</move_reason>",
+    2: "<task>Pick up the butter and place it in the basket.</task><plan>1. Approach butter. 2. Grasp butter. 3. Lift butter. 4. Move to basket. 5. Position over basket. 6. Release butter. 7. Retract.</plan><subtask>Approach butter.</subtask><subtask_reason>Further adjustment of position to be directly above the butter.</subtask_reason><move>move down</move><move_reason>Fine-tuning the position to be directly above the butter for grasping.</move_reason>",
+    3: "<task>Pick up the butter and place it in the basket.</task><plan>1. Approach butter. 2. Grasp butter. 3. Lift butter. 4. Move to basket. 5. Position over basket. 6. Release butter. 7. Retract.</plan><subtask>Grasp butter.</subtask><subtask_reason>The robot is now positioned to grasp the butter.</subtask_reason><move>move down, close gripper</move><move_reason>The robot closes the gripper while moving down to ensure a secure grip on the butter.</move_reason>",
+    4: "<task>Pick up the butter and place it in the basket.</task><plan>1. Lift butter. 2. Move to basket. 3. Position over basket. 4. Release butter. 5. Retract.</plan><subtask>Grasp butter.</subtask><subtask_reason>Ensuring a secure grip on the butter before lifting.</subtask_reason><move>close gripper</move><move_reason>Final confirmation of a secure grip.</move_reason>",
+    5: "<task>Pick up the butter and place it in the basket.</task><plan>1. Lift butter. 2. Move to basket. 3. Position over basket. 4. Release butter. 5. Retract.</plan><subtask>Lift butter.</subtask><subtask_reason>The butter is grasped; now lift it.</subtask_reason><move>stop</move><move_reason>Brief pause before initiating the lifting movement.</move_reason>",
+    6: "<task>Pick up the butter and place it in the basket.</task><plan>1. Lift butter. 2. Move to basket. 3. Position over basket. 4. Release butter. 5. Retract.</plan><subtask>Lift butter.</subtask><subtask_reason>Begin lifting the butter to clear the floor.</subtask_reason><move>move up</move><move_reason>Vertical movement to lift the butter from the floor.</move_reason>",
+    7: "<task>Pick up the butter and place it in the basket.</task><plan>1. Lift butter. 2. Move to basket. 3. Position over basket. 4. Release butter. 5. Retract.</plan><subtask>Lift butter.</subtask><subtask_reason>Continuing to lift and adjust orientation.</subtask_reason><move>move up, tilt down</move><move_reason>Adjusting the butter's orientation for stable carriage.</move_reason>",
+    8: "<task>Pick up the butter and place it in the basket.</task><plan>1. Move to basket. 2. Position over basket. 3. Release butter. 4. Retract.</plan><subtask>Move to basket.</subtask><subtask_reason>The butter is lifted; now move towards the basket, avoiding obstacles.</subtask_reason><move>move left up, tilt down</move><move_reason>Moving towards the basket while maintaining a stable grip and clearing obstacles.</move_reason>",
+    9: "<task>Pick up the butter and place it in the basket.</task><plan>1. Move to basket. 2. Position over basket. 3. Release butter. 4. Retract.</plan><subtask>Move to basket.</subtask><subtask_reason>Approaching the basket.</subtask_reason><move>move left, tilt down</move><move_reason>Final adjustments to reach the basket's location.</move_reason>",
+    10: "<task>Pick up the butter and place it in the basket.</task><plan>1. Position over basket. 2. Release butter. 3. Retract.</plan><subtask>Position over basket.</subtask><subtask_reason>Almost above the basket, making final positioning adjustments.</subtask_reason><move>move left</move><move_reason>Fine-tuning horizontal position above the basket.</move_reason>",
+    11: "<task>Pick up the butter and place it in the basket.</task><plan>1. Position over basket. 2. Release butter. 3. Retract.</plan><subtask>Position over basket.</subtask><subtask_reason>Precise positioning above the basket is crucial for successful release.</subtask_reason><move>move left down</move><move_reason>Precisely positioning above the basket.</move_reason>",
+    12: "<task>Pick up the butter and place it in the basket.</task><plan>1. Release butter. 2. Retract.</plan><subtask>Position over basket.</subtask><subtask_reason>Final descent before releasing the butter.</subtask_reason><move>move down</move><move_reason>Lowering the butter into the basket.</move_reason>",
+    13: "<task>Pick up the butter and place it in the basket.</task><plan>1. Release butter. 2. Retract.</plan><subtask>Release butter.</subtask><subtask_reason>The butter is positioned above the basket; now release it.</subtask_reason><move>move down, open gripper</move><move_reason>Opening the gripper while moving down to ensure the butter is fully deposited in the basket.</move_reason>",
+    14: "<task>Pick up the butter and place it in the basket.</task><plan>1. Retract.</plan><subtask>Release butter.</subtask><subtask_reason>Confirmation of release.</subtask_reason><move>open gripper</move><move_reason>Ensuring the butter is released.</move_reason>",
+    15: "<task>Pick up the butter and place it in the basket.</task><plan>1. Retract.</plan><subtask>Retract.</subtask><subtask_reason>The butter has been placed; now retract.</subtask_reason><move>stop</move><move_reason>Pause before retraction.</move_reason>",
+    16: "<task>Pick up the butter and place it in the basket.</task><plan>1. Stop.</plan><subtask>Retract.</subtask><subtask_reason>Moving away from the basket.</subtask_reason><move>move up</move><move_reason>Moving upwards to clear the basket.</move_reason>",
+    17: "<task>Stop.</task><plan>1. Stop.</plan><subtask>Stop.</subtask><subtask_reason>Task completed.</subtask_reason><move>stop</move><move_reason>Task finished.</move_reason>"
+}
+```
+
+FINISHED

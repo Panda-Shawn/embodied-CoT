@@ -1,0 +1,36 @@
+## Task Description and High-Level Movements
+
+The task is to open the middle drawer of a wooden cabinet.  The cabinet is located in an environment containing various objects: a wine rack (next to the cabinet and a wine bottle), a wine bottle (next to the wine rack), a plate (next to a bowl), a cream cheese, a bowl, and a flat stove. The primary activity is to manipulate the robotic arm to locate and open the middle drawer of the cabinet. The intended outcome is a successfully opened middle drawer.
+
+The general sequence of high-level movements can be inferred from the trajectory:
+
+1. **Approach the Cabinet:** This involves moving the robot arm to a position in front of the cabinet, where it can reach the drawer. This spans steps 0-8.  This is necessary to bring the robotic arm into a position where it can interact with the cabinet.
+
+2. **Orient to the Drawer:** Once positioned, the robot arm must orient itself to accurately target the middle drawer. This spans steps 9-11.  This is crucial for precise manipulation and avoids unintended interactions with other objects or parts of the cabinet.
+
+3. **Open the Drawer:** The robot arm then executes the action to open the drawer. This spans steps 12-15. This is the final goal of the task.
+
+## Step-by-Step Reasoning Dictionary
+
+```python
+step_reasoning = {
+    0: "<task>Open the middle drawer of the cabinet.</task><plan>1. Approach the cabinet. 2. Orient to the drawer. 3. Open the drawer. 4. Stop.</plan><subtask>Approach the cabinet.</subtask><subtask_reason>The robot needs to move to a position where it can interact with the cabinet.</subtask_reason><move>move forward</move><move_reason>This initial movement starts the approach towards the cabinet.</move_reason>",
+    1: "<task>Open the middle drawer of the cabinet.</task><plan>1. Approach the cabinet. 2. Orient to the drawer. 3. Open the drawer. 4. Stop.</plan><subtask>Approach the cabinet.</subtask><subtask_reason>Continuing the approach, adjusting for optimal positioning.</subtask_reason><move>move forward, rotate clockwise</move><move_reason>This adjusts the robot's orientation to better align with the cabinet.</move_reason>",
+    2: "<task>Open the middle drawer of the cabinet.</task><plan>1. Approach the cabinet. 2. Orient to the drawer. 3. Open the drawer. 4. Stop.</plan><subtask>Approach the cabinet.</subtask><subtask_reason>Further adjustment of position and angle is needed to get closer to the cabinet's drawer.</subtask_reason><move>move forward, rotate counterclockwise, tilt down</move><move_reason>Refines the approach, lowering the arm to reach the drawer's handle/opening mechanism.</move_reason>",
+    3: "<task>Open the middle drawer of the cabinet.</task><plan>1. Approach the cabinet. 2. Orient to the drawer. 3. Open the drawer. 4. Stop.</plan><subtask>Approach the cabinet.</subtask><subtask_reason>Fine-tuning the position and angle to precisely target the drawer.</subtask_reason><move>rotate counterclockwise, tilt down</move><move_reason>Minor adjustments in angle and height to finalize the approach.</move_reason>",
+    4: "<task>Open the middle drawer of the cabinet.</task><plan>1. Approach the cabinet. 2. Orient to the drawer. 3. Open the drawer. 4. Stop.</plan><subtask>Approach the cabinet.</subtask><subtask_reason>Small adjustments to perfectly position the robot arm before interaction.</subtask_reason><move>move down, rotate counterclockwise, tilt down</move><move_reason>The robot moves slightly down and adjusts its orientation to prepare for grabbing the handle.</move_reason>",
+    5: "<task>Open the middle drawer of the cabinet.</task><plan>1. Approach the cabinet. 2. Orient to the drawer. 3. Open the drawer. 4. Stop.</plan><subtask>Orient to the drawer.</subtask><subtask_reason>The robot is close enough; now it needs to precisely position itself to interact with the drawer handle.</subtask_reason><move>move down, rotate counterclockwise</move><move_reason>Fine adjustment for precise targeting of the drawer handle.</move_reason>",
+    6: "<task>Open the middle drawer of the cabinet.</task><plan>1. Approach the cabinet. 2. Orient to the drawer. 3. Open the drawer. 4. Stop.</plan><subtask>Orient to the drawer.</subtask><subtask_reason>Ensuring the perfect angle before attempting to open the drawer.</subtask_reason><move>rotate counterclockwise</move><move_reason>Further precise angle adjustment to target the drawer handle.</move_reason>",
+    7: "<task>Open the middle drawer of the cabinet.</task><plan>1. Approach the cabinet. 2. Orient to the drawer. 3. Open the drawer. 4. Stop.</plan><subtask>Orient to the drawer.</subtask><subtask_reason>Final minor adjustment to ensure optimal orientation.</subtask_reason><move>move right, rotate counterclockwise</move><move_reason>Slight lateral and angular adjustment to precisely align with the drawer handle.</move_reason>",
+    8: "<task>Open the middle drawer of the cabinet.</task><plan>1. Approach the cabinet. 2. Orient to the drawer. 3. Open the drawer. 4. Stop.</plan><subtask>Orient to the drawer.</subtask><subtask_reason>Final positioning before attempting to open the drawer.</subtask_reason><move>move right</move><move_reason>Minor adjustment to perfect the position before opening.</move_reason>",
+    9: "<task>Open the middle drawer of the cabinet.</task><plan>1. Orient to the drawer. 2. Open the drawer. 3. Stop.</plan><subtask>Orient to the drawer.</subtask><subtask_reason>The robot has approached the cabinet; now it must orient itself to the drawer.</subtask_reason><move>stop</move><move_reason>Brief pause to confirm optimal orientation before proceeding.</move_reason>",
+    10: "<task>Open the middle drawer of the cabinet.</task><plan>1. Orient to the drawer. 2. Open the drawer. 3. Stop.</plan><subtask>Open the drawer.</subtask><subtask_reason>The robot is oriented; now it should open the drawer.</subtask_reason><move>move forward</move><move_reason>A forward motion initiates the drawer opening mechanism.</move_reason>",
+    11: "<task>Open the middle drawer of the cabinet.</task><plan>1. Open the drawer. 2. Stop.</plan><subtask>Open the drawer.</subtask><subtask_reason>Final step in the opening process.</subtask_reason><move>stop</move><move_reason>Pause to confirm the drawer is opening.</move_reason>",
+    12: "<task>Open the middle drawer of the cabinet.</task><plan>1. Open the drawer. 2. Stop.</plan><subtask>Open the drawer.</subtask><subtask_reason>Continues opening the drawer.</subtask_reason><move>move down</move><move_reason>This downward motion assists in the drawer's opening action.</move_reason>",
+    13: "<task>Open the middle drawer of the cabinet.</task><plan>1. Stop.</plan><subtask>Stop.</subtask><subtask_reason>The drawer is open.</subtask_reason><move>stop</move><move_reason>Pause to confirm the drawer is fully open.</move_reason>",
+    14: "<task>Stop.</task><plan>1. Stop.</plan><subtask>Stop.</subtask><subtask_reason>Task is completed.</subtask_reason><move>move left</move><move_reason>A minor adjustment post-opening to return to a neutral position.</move_reason>",
+    15: "<task>Stop.</task><plan>1. Stop.</plan><subtask>Stop.</subtask><subtask_reason>Task is completed.</subtask_reason><move>stop</move><move_reason>Final stop, indicating task completion.</move_reason>"
+}
+```
+
+FINISHED

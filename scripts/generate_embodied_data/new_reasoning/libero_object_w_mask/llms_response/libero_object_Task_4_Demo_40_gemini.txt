@@ -1,0 +1,41 @@
+## Task Description and High-Level Movements
+
+The task is to pick up a bottle of ketchup from a surface and place it in a basket.  The ketchup bottle is assumed to be located to the right and slightly down from the robot's starting position. The basket is assumed to be located further to the left, potentially at a similar height as the ketchup bottle's final placement. The robot needs to navigate to the ketchup, grasp it, lift it, navigate to the basket, and release the ketchup into the basket.
+
+
+The robot likely followed this high-level plan:
+
+1. **Approach Ketchup:** (Steps 1-6) The robot needs to move into a position to grasp the ketchup bottle. This involves moving in the general direction of the ketchup.
+2. **Grasp Ketchup:** (Steps 7-8) Close the gripper to pick up the ketchup bottle.
+3. **Lift Ketchup:** (Steps 9-10) Lift the ketchup bottle.
+4. **Move to Basket:** (Steps 11-13) Move towards the basket.
+5. **Lower Ketchup:** (Steps 14-15) Lower the ketchup into the basket.
+6. **Release Ketchup:** (Steps 14-15) Release the ketchup from the gripper.
+7. **Retreat:** (Steps 17-18) Move away from the basket.
+
+
+```python
+step_reasonings = {
+    0: "<task>Pick up the ketchup and place it in the basket.</task><plan>1. Approach Ketchup. 2. Grasp Ketchup. 3. Lift Ketchup. 4. Move to Basket. 5. Lower Ketchup. 6. Release Ketchup. 7. Retreat.</plan><subtask>Approach Ketchup.</subtask><subtask_reason>The robot needs to position itself to pick up the ketchup.</subtask_reason><move>stop</move><move_reason>Initial position; preparing for movement.</move_reason>",
+    1: "<task>Pick up the ketchup and place it in the basket.</task><plan>1. Approach Ketchup. 2. Grasp Ketchup. 3. Lift Ketchup. 4. Move to Basket. 5. Lower Ketchup. 6. Release Ketchup. 7. Retreat.</plan><subtask>Approach Ketchup.</subtask><subtask_reason>Moving closer to the ketchup bottle.</subtask_reason><move>move forward right</move><move_reason>Initial approach; moving forward and slightly right towards the ketchup.</move_reason>",
+    2: "<task>Pick up the ketchup and place it in the basket.</task><plan>1. Approach Ketchup. 2. Grasp Ketchup. 3. Lift Ketchup. 4. Move to Basket. 5. Lower Ketchup. 6. Release Ketchup. 7. Retreat.</plan><subtask>Approach Ketchup.</subtask><subtask_reason>Further refinement of position before grasping.</subtask_reason><move>move right</move><move_reason>Adjusting position to align with the ketchup bottle.</move_reason>",
+    3: "<task>Pick up the ketchup and place it in the basket.</task><plan>1. Approach Ketchup. 2. Grasp Ketchup. 3. Lift Ketchup. 4. Move to Basket. 5. Lower Ketchup. 6. Release Ketchup. 7. Retreat.</plan><subtask>Approach Ketchup.</subtask><subtask_reason>Final adjustment to reach the ketchup bottle.</subtask_reason><move>move right down</move><move_reason>Approaching the ketchup from a slightly higher position for better gripping.</move_reason>",
+    4: "<task>Pick up the ketchup and place it in the basket.</task><plan>1. Approach Ketchup. 2. Grasp Ketchup. 3. Lift Ketchup. 4. Move to Basket. 5. Lower Ketchup. 6. Release Ketchup. 7. Retreat.</plan><subtask>Approach Ketchup.</subtask><subtask_reason>Final positioning above the ketchup.</subtask_reason><move>move down</move><move_reason>Lowering arm to grasp the ketchup bottle.</move_reason>",
+    5: "<task>Pick up the ketchup and place it in the basket.</task><plan>1. Approach Ketchup. 2. Grasp Ketchup. 3. Lift Ketchup. 4. Move to Basket. 5. Lower Ketchup. 6. Release Ketchup. 7. Retreat.</plan><subtask>Approach Ketchup.</subtask><subtask_reason>Minor adjustment before grasping.</subtask_reason><move>move backward down</move><move_reason>Fine-tuning positioning for secure grip.</move_reason>",
+    6: "<task>Pick up the ketchup and place it in the basket.</task><plan>1. Grasp Ketchup. 2. Lift Ketchup. 3. Move to Basket. 4. Lower Ketchup. 5. Release Ketchup. 6. Retreat.</plan><subtask>Grasp Ketchup.</subtask><subtask_reason>Ready to grasp the ketchup bottle.</subtask_reason><move>stop</move><move_reason>Pausing briefly before grasping.</move_reason>",
+    7: "<task>Place the ketchup in the basket.</task><plan>1. Lift Ketchup. 2. Move to Basket. 3. Lower Ketchup. 4. Release Ketchup. 5. Retreat.</plan><subtask>Grasp Ketchup.</subtask><subtask_reason>Closing the gripper to pick up the ketchup.</subtask_reason><move>close gripper</move><move_reason>Gripping the ketchup bottle.</move_reason>",
+    8: "<task>Place the ketchup in the basket.</task><plan>1. Lift Ketchup. 2. Move to Basket. 3. Lower Ketchup. 4. Release Ketchup. 5. Retreat.</plan><subtask>Lift Ketchup.</subtask><subtask_reason>Preparing to lift the ketchup.</subtask_reason><move>stop</move><move_reason>Brief pause before lifting.</move_reason>",
+    9: "<task>Place the ketchup in the basket.</task><plan>1. Lift Ketchup. 2. Move to Basket. 3. Lower Ketchup. 4. Release Ketchup. 5. Retreat.</plan><subtask>Lift Ketchup.</subtask><subtask_reason>Lifting the ketchup bottle.</subtask_reason><move>move up</move><move_reason>Lifting the ketchup.</move_reason>",
+    10: "<task>Place the ketchup in the basket.</task><plan>1. Move to Basket. 2. Lower Ketchup. 3. Release Ketchup. 4. Retreat.</plan><subtask>Move to Basket.</subtask><subtask_reason>Moving towards the basket.</subtask_reason><move>move left up</move><move_reason>Moving and lifting slightly to clear obstacles.</move_reason>",
+    11: "<task>Place the ketchup in the basket.</task><plan>1. Move to Basket. 2. Lower Ketchup. 3. Release Ketchup. 4. Retreat.</plan><subtask>Move to Basket.</subtask><subtask_reason>Continuing towards the basket.</subtask_reason><move>move left</move><move_reason>Moving towards the basket.</move_reason>",
+    12: "<task>Place the ketchup in the basket.</task><plan>1. Move to Basket. 2. Lower Ketchup. 3. Release Ketchup. 4. Retreat.</plan><subtask>Move to Basket.</subtask><subtask_reason>Approaching the basket.</subtask_reason><move>move left down</move><move_reason>Lowering to position the ketchup above the basket.</move_reason>",
+    13: "<task>Place the ketchup in the basket.</task><plan>1. Lower Ketchup. 2. Release Ketchup. 3. Retreat.</plan><subtask>Lower Ketchup.</subtask><subtask_reason>Positioning to lower the ketchup into the basket.</subtask_reason><move>move down</move><move_reason>Lowering the ketchup closer to the basket.</move_reason>",
+    14: "<task>Release the ketchup.</task><plan>1. Release Ketchup. 2. Retreat.</plan><subtask>Lower Ketchup and Release Ketchup.</subtask><subtask_reason>Lowering the ketchup into the basket and releasing it.</subtask_reason><move>move down, open gripper</move><move_reason>Lowering into the basket and opening the gripper to release the ketchup.</move_reason>",
+    15: "<task>Retreat.</task><plan>1. Retreat.</plan><subtask>Release Ketchup.</subtask><subtask_reason>Ketchup has been placed in the basket; gripper needs to be opened.</subtask_reason><move>open gripper</move><move_reason>Releasing the ketchup into the basket.</move_reason>",
+    16: "<task>Retreat.</task><plan>1. Retreat.</plan><subtask>Retreat.</subtask><subtask_reason>Task almost complete.</subtask_reason><move>stop</move><move_reason>Pausing before retreating.</move_reason>",
+    17: "<task>Stop.</task><plan>1. Stop.</plan><subtask>Retreat.</subtask><subtask_reason>Moving away from the basket.</subtask_reason><move>move up</move><move_reason>Moving the arm up and away from the basket.</move_reason>",
+    18: "<task>Stop.</task><plan>1. Stop.</plan><subtask>Stop.</subtask><subtask_reason>Task completed.</subtask_reason><move>stop</move><move_reason>Task completed.</move_reason>"
+}
+```
+
+FINISHED

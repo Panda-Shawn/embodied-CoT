@@ -1,0 +1,36 @@
+## Task Description and High-Level Movements
+
+The task is to turn on a stove. The stove is located on the left side of a table.  Other objects present on the table include a wine rack (near the cabinet), a wine bottle, a plate with cream cheese, and an Akita black bowl. A wooden cabinet is on the right side of the table. The robot needs to reach the stove's control knob, likely located on the front or top of the stove, and rotate it to the "on" position.  The robot arm uses a gripper to interact with the knob.
+
+The high-level movements identified from the trajectory are as follows:
+
+
+1. **Approach the stove:** (Steps 0-3) The robot needs to navigate to a position where it can reach the stove's control knob. This involves maneuvering around potential obstacles on the table.
+
+2. **Grasp the stove knob:** (Steps 4-6)  Once positioned near the stove, the robot must accurately grasp the control knob using its gripper.
+
+3. **Turn on the stove:** (Steps 8-8)  The robot needs to rotate the knob to turn the stove on.
+
+4. **Release and retract:** (Steps 10-10) This involves releasing the knob and moving the arm away from the stove.
+
+
+## Step-by-Step Reasoning Dictionary
+
+```python
+step_reasoning = {
+    0: "<task>Turn on the stove.</task><plan>1. Approach the stove. 2. Grasp the stove knob. 3. Turn on the stove. 4. Release and retract.</plan><subtask>Approach the stove.</subtask><subtask_reason>The robot must first position itself to reach the stove.</subtask_reason><move>move left</move><move_reason>This initial movement starts the approach towards the stove, which is located on the left side of the table.</move_reason>",
+    1: "<task>Turn on the stove.</task><plan>1. Approach the stove. 2. Grasp the stove knob. 3. Turn on the stove. 4. Release and retract.</plan><subtask>Approach the stove.</subtask><subtask_reason>Continuing the approach, accounting for the table height.</subtask_reason><move>move left down</move><move_reason>This movement continues the approach, moving both left and downwards to lower the arm towards the table's surface.</move_reason>",
+    2: "<task>Turn on the stove.</task><plan>1. Approach the stove. 2. Grasp the stove knob. 3. Turn on the stove. 4. Release and retract.</plan><subtask>Approach the stove.</subtask><subtask_reason>Further refinement of the approach.</subtask_reason><move>move down</move><move_reason>The robot lowers itself further to be directly above the stove.</move_reason>",
+    3: "<task>Turn on the stove.</task><plan>1. Approach the stove. 2. Grasp the stove knob. 3. Turn on the stove. 4. Release and retract.</plan><subtask>Approach the stove.</subtask><subtask_reason>Final adjustment of position before grasping.</subtask_reason><move>move backward down</move><move_reason>A final backward and downward movement fine-tunes the robot's position to accurately grasp the knob.</move_reason>",
+    4: "<task>Turn on the stove.</task><plan>1. Grasp the stove knob. 2. Turn on the stove. 3. Release and retract.</plan><subtask>Grasp the stove knob.</subtask><subtask_reason>The robot is now in position to grasp the knob.</subtask_reason><move>move backward down, close gripper</move><move_reason>This movement closes the gripper around the knob while making a minor adjustment to maintain a firm grip.</move_reason>",
+    5: "<task>Turn on the stove.</task><plan>1. Grasp the stove knob. 2. Turn on the stove. 3. Release and retract.</plan><subtask>Grasp the stove knob.</subtask><subtask_reason>Ensuring a secure grip.</subtask_reason><move>move down, close gripper</move><move_reason>Securing the grip by moving down slightly and closing the gripper further.</move_reason>",
+    6: "<task>Turn on the stove.</task><plan>1. Turn on the stove. 2. Release and retract.</plan><subtask>Turn on the stove.</subtask><subtask_reason>The knob is now grasped and ready to be rotated.</subtask_reason><move>close gripper</move><move_reason>A final confirmation of the gripper closure to ensure a secure grasp before rotation.</move_reason>",
+    7: "<task>Turn on the stove.</task><plan>1. Turn on the stove. 2. Release and retract.</plan><subtask>Turn on the stove.</subtask><subtask_reason>The robot is ready to turn the knob.</subtask_reason><move>stop</move><move_reason>A brief pause before the rotation to ensure stability.</move_reason>",
+    8: "<task>Turn on the stove.</task><plan>1. Release and retract.</plan><subtask>Turn on the stove.</subtask><subtask_reason>Rotating the knob to turn on the stove.</subtask_reason><move>rotate clockwise</move><move_reason>This rotates the knob clockwise, assuming that's the direction to turn on the stove.</move_reason>",
+    9: "<task>Turn on the stove.</task><plan>1. Release and retract.</plan><subtask>Release and retract.</subtask><subtask_reason>The stove is now turned on. Time to release the knob and retract.</subtask_reason><move>rotate counterclockwise</move><move_reason>This movement is likely an error in the trajectory, as it undoes the previous action.  It might be corrected in later training iterations.</move_reason>",
+    10: "<task>Turn on the stove.</task><plan>1. Stop.</plan><subtask>Stop.</subtask><subtask_reason>The task is completed</subtask_reason><move>rotate counterclockwise, open gripper</move><move_reason>The gripper is opened and the arm moves away to avoid interference</move_reason>",
+    11: "<task>Stop.</task><plan>1. Stop.</plan><subtask>Stop.</subtask><subtask_reason>The task is completed.</subtask_reason><move>rotate clockwise, open gripper</move><move_reason>This movement is likely an error in the trajectory, as it is unnecessary after the task is completed. It might be corrected in later training iterations.</move_reason>"
+}
+```
+
+FINISHED

@@ -1,0 +1,45 @@
+## Task Description and High-Level Movements
+
+The task is to pick up the BBQ sauce bottle from the table and place it in the basket. The environment contains a table with various items: BBQ sauce, a basket, chocolate pudding, ketchup, salad dressing, alphabet soup, and cream cheese.  The initial state shows the BBQ sauce bottle on the table, and the basket is also on the table. The goal is to move the BBQ sauce bottle from its initial location to inside the basket.
+
+
+The robot likely followed this high-level plan:
+
+1. **Approach BBQ Sauce:** (Steps 0-6) The robot needs to navigate to the BBQ sauce bottle. This involves moving towards the general area where the BBQ sauce is located.
+
+2. **Pick up BBQ Sauce:** (Steps 7-8)  The robot needs to grasp the BBQ sauce bottle using its gripper.
+
+3. **Lift and Move to Basket:** (Steps 10-12) The robot needs to lift the BBQ sauce bottle and move it towards the basket.
+
+4. **Place BBQ Sauce in Basket:** (Steps 13-17) The robot needs to precisely position the BBQ sauce bottle inside the basket and release its grip.
+
+5. **Return to resting position:** (Steps 18) The robot ends its task by moving to a stop location.
+
+
+## Step-by-Step Reasoning Dictionary
+
+```python
+step_reasoning = {
+    0: "<task>Pick up the bbq sauce and place it in the basket.</task><plan>1. Approach BBQ Sauce. 2. Pick up BBQ Sauce. 3. Move to Basket. 4. Place BBQ Sauce in Basket. 5. Stop.</plan><subtask>Approach BBQ Sauce.</subtask><subtask_reason>The robot needs to get close to the BBQ sauce before it can pick it up.</subtask_reason><move>move forward</move><move_reason>This initial movement starts the approach towards the general area of the BBQ sauce.</move_reason>",
+    1: "<task>Pick up the bbq sauce and place it in the basket.</task><plan>1. Approach BBQ Sauce. 2. Pick up BBQ Sauce. 3. Move to Basket. 4. Place BBQ Sauce in Basket. 5. Stop.</plan><subtask>Approach BBQ Sauce.</subtask><subtask_reason>The robot is still approaching the BBQ sauce.</subtask_reason><move>move forward right</move><move_reason>Adjusting trajectory to approach the BBQ sauce from a better angle. </move_reason>",
+    2: "<task>Pick up the bbq sauce and place it in the basket.</task><plan>1. Approach BBQ Sauce. 2. Pick up BBQ Sauce. 3. Move to Basket. 4. Place BBQ Sauce in Basket. 5. Stop.</plan><subtask>Approach BBQ Sauce.</subtask><subtask_reason>Further refinement of approach position, perhaps due to obstacles or to center the BBQ sauce in the robot's workspace.</subtask_reason><move>move forward right, rotate counterclockwise</move><move_reason>Fine-tuning the robot's position and orientation to be directly in front of the BBQ sauce.</move_reason>",
+    3: "<task>Pick up the bbq sauce and place it in the basket.</task><plan>1. Approach BBQ Sauce. 2. Pick up BBQ Sauce. 3. Move to Basket. 4. Place BBQ Sauce in Basket. 5. Stop.</plan><subtask>Approach BBQ Sauce.</subtask><subtask_reason>Continuing the approach, adjusting orientation.</subtask_reason><move>move forward, rotate counterclockwise</move><move_reason>Adjusting orientation to accurately align the gripper with the BBQ sauce bottle.</move_reason>",
+    4: "<task>Pick up the bbq sauce and place it in the basket.</task><plan>1. Approach BBQ Sauce. 2. Pick up BBQ Sauce. 3. Move to Basket. 4. Place BBQ Sauce in Basket. 5. Stop.</plan><subtask>Approach BBQ Sauce.</subtask><subtask_reason>Final adjustment before grasping.</subtask_reason><move>move forward down, rotate counterclockwise</move><move_reason>Lowering the arm to the level of the BBQ sauce for grasping.</move_reason>",
+    5: "<task>Pick up the bbq sauce and place it in the basket.</task><plan>1. Approach BBQ Sauce. 2. Pick up BBQ Sauce. 3. Move to Basket. 4. Place BBQ Sauce in Basket. 5. Stop.</plan><subtask>Pick up BBQ Sauce.</subtask><subtask_reason>The robot is now positioned to grasp the BBQ sauce.</subtask_reason><move>move down, rotate counterclockwise</move><move_reason>Final positioning for grip.</move_reason>",
+    6: "<task>Pick up the bbq sauce and place it in the basket.</task><plan>1. Approach BBQ Sauce. 2. Pick up BBQ Sauce. 3. Move to Basket. 4. Place BBQ Sauce in Basket. 5. Stop.</plan><subtask>Pick up BBQ Sauce.</subtask><subtask_reason>Final positioning before grasping.</subtask_reason><move>move down</move><move_reason>Moving the gripper to optimal grasping position.</move_reason>",
+    7: "<task>Place the bbq sauce in the basket.</task><plan>1. Move to Basket. 2. Place BBQ Sauce in Basket. 3. Stop.</plan><subtask>Pick up BBQ Sauce.</subtask><subtask_reason>Gripping the BBQ sauce bottle.</subtask_reason><move>move down, close gripper</move><move_reason>Closing the gripper to secure the BBQ sauce bottle.</move_reason>",
+    8: "<task>Place the bbq sauce in the basket.</task><plan>1. Move to Basket. 2. Place BBQ Sauce in Basket. 3. Stop.</plan><subtask>Pick up BBQ Sauce.</subtask><subtask_reason>Ensuring a secure grip.</subtask_reason><move>close gripper</move><move_reason>Confirming secure grip on the BBQ sauce.</move_reason>",
+    9: "<task>Place the bbq sauce in the basket.</task><plan>1. Move to Basket. 2. Place BBQ Sauce in Basket. 3. Stop.</plan><subtask>Move to Basket.</subtask><subtask_reason>The BBQ sauce has been picked up. Now the robot needs to move to the basket.</subtask_reason><move>stop</move><move_reason>Brief pause before lifting and moving.</move_reason>",
+    10: "<task>Place the bbq sauce in the basket.</task><plan>1. Move to Basket. 2. Place BBQ Sauce in Basket. 3. Stop.</plan><subtask>Move to Basket.</subtask><subtask_reason>Lifting the BBQ sauce to move it.</subtask_reason><move>move up</move><move_reason>Lifting the BBQ sauce bottle.</move_reason>",
+    11: "<task>Place the bbq sauce in the basket.</task><plan>1. Move to Basket. 2. Place BBQ Sauce in Basket. 3. Stop.</plan><subtask>Move to Basket.</subtask><subtask_reason>Moving towards the basket.</subtask_reason><move>move left up</move><move_reason>Moving towards the basket while maintaining a safe lifting height.</move_reason>",
+    12: "<task>Place the bbq sauce in the basket.</task><plan>1. Move to Basket. 2. Place BBQ Sauce in Basket. 3. Stop.</plan><subtask>Move to Basket.</subtask><subtask_reason>Fine-tuning the position before placing.</subtask_reason><move>move left</move><move_reason>Fine adjustments to align above the basket.</move_reason>",
+    13: "<task>Place the bbq sauce in the basket.</task><plan>1. Place BBQ Sauce in Basket. 2. Stop.</plan><subtask>Place BBQ Sauce in Basket.</subtask><subtask_reason>The robot is positioned above the basket.</subtask_reason><move>move left down</move><move_reason>Lowering the BBQ sauce towards the basket.</move_reason>",
+    14: "<task>Place the bbq sauce in the basket.</task><plan>1. Place BBQ Sauce in Basket. 2. Stop.</plan><subtask>Place BBQ Sauce in Basket.</subtask><subtask_reason>Precise positioning above the basket.</subtask_reason><move>move down</move><move_reason>Further lowering the BBQ sauce towards the basket.</move_reason>",
+    15: "<task>Stop.</task><plan>1. Stop.</plan><subtask>Place BBQ Sauce in Basket.</subtask><subtask_reason>Releasing the BBQ sauce into the basket.</subtask_reason><move>move down, open gripper</move><move_reason>Releasing the BBQ sauce into the basket.</move_reason>",
+    16: "<task>Stop.</task><plan>1. Stop.</plan><subtask>Stop.</subtask><subtask_reason>Ensuring the gripper is open.</subtask_reason><move>open gripper</move><move_reason>Double check that the gripper is open.</move_reason>",
+    17: "<task>Stop.</task><plan>1. Stop.</plan><subtask>Stop.</subtask><subtask_reason>Moving the arm to clear the basket.</subtask_reason><move>move up</move><move_reason>Lifting the arm to clear the basket.</move_reason>",
+    18: "<task>Stop.</task><plan>1. Stop.</plan><subtask>Stop.</subtask><subtask_reason>The task is complete.</subtask_reason><move>stop</move><move_reason>The robot has completed the task.</move_reason>"
+}
+```
+
+FINISHED

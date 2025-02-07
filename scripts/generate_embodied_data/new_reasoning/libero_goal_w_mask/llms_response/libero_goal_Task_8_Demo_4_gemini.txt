@@ -1,0 +1,37 @@
+## Task Description and High-Level Movements
+
+The task is to move a bowl (implied by the instruction) from an unknown location to a plate located on a wooden surface.  The environment contains several objects: a cream cheese near the center, a wine bottle to its right, a plate below the cream cheese, a wooden cabinet to the right of the plate, a flat stove to the left of the plate, and a wine rack to the right of the stove.  The goal is to place the bowl onto the plate. The high-level movements likely involved:
+
+1. **Approach Bowl:** The robot needs to move towards the bowl before it can grasp it.  This likely spans steps 0-3.
+
+2. **Grasp Bowl:** The robot must pick up the bowl with its gripper. This includes approaching the bowl and closing the gripper around it. This spans steps 3-5.
+
+3. **Move to Plate:** Once the bowl is grasped, it needs to be transported to the plate. This involves moving above the plate in a way to avoid collisions.  This spans steps 6-10.
+
+4. **Place Bowl:** The robot must carefully position the bowl and release it onto the plate.  This spans steps 10-13.
+
+5. **Retract:** The robot will move away from the plate. This spans steps 14-15
+
+
+```python
+step_reasonings = {
+    0: "<task>Put the bowl on the plate.</task><plan>1. Approach bowl. 2. Grasp bowl. 3. Move to plate. 4. Place bowl. 5. Retract.</plan><subtask>Approach bowl.</subtask><subtask_reason>The robot needs to get close enough to the bowl to grasp it.</subtask_reason><move>move forward</move><move_reason>Initial movement towards the assumed bowl location.</move_reason>",
+    1: "<task>Put the bowl on the plate.</task><plan>1. Approach bowl. 2. Grasp bowl. 3. Move to plate. 4. Place bowl. 5. Retract.</plan><subtask>Approach bowl.</subtask><subtask_reason>Continuing the approach to the bowl.</subtask_reason><move>move forward down</move><move_reason>Moving closer to the bowl while lowering slightly to avoid obstacles.</move_reason>",
+    2: "<task>Put the bowl on the plate.</task><plan>1. Approach bowl. 2. Grasp bowl. 3. Move to plate. 4. Place bowl. 5. Retract.</plan><subtask>Approach bowl.</subtask><subtask_reason>Further approach to the bowl.</subtask_reason><move>move down</move><move_reason>Lowering the arm to reach the bowl's grasping height.</move_reason>",
+    3: "<task>Put the bowl on the plate.</task><plan>1. Grasp bowl. 2. Move to plate. 3. Place bowl. 4. Retract.</plan><subtask>Grasp bowl.</subtask><subtask_reason>The arm is positioned to grasp the bowl.</subtask_reason><move>move down, close gripper</move><move_reason>The gripper closes around the bowl as the arm moves down to secure a hold.</move_reason>",
+    4: "<task>Put the bowl on the plate.</task><plan>1. Grasp bowl. 2. Move to plate. 3. Place bowl. 4. Retract.</plan><subtask>Grasp bowl.</subtask><subtask_reason>Ensuring a secure grip of the bowl before moving.</subtask_reason><move>move down</move><move_reason>Slight downward adjustment to confirm a secure grip.</move_reason>",
+    5: "<task>Put the bowl on the plate.</task><plan>1. Move to plate. 2. Place bowl. 3. Retract.</plan><subtask>Move to plate.</subtask><subtask_reason>The bowl is grasped; now move towards the plate.</subtask_reason><move>stop</move><move_reason>Pauses before starting to move to plate.</move_reason>",
+    6: "<task>Put the bowl on the plate.</task><plan>1. Move to plate. 2. Place bowl. 3. Retract.</plan><subtask>Move to plate.</subtask><subtask_reason>Moving the bowl towards the plate's location.</subtask_reason><move>move up</move><move_reason>Lifting the bowl to clear any obstacles and maintain a safe trajectory.</move_reason>",
+    7: "<task>Put the bowl on the plate.</task><plan>1. Move to plate. 2. Place bowl. 3. Retract.</plan><subtask>Move to plate.</subtask><subtask_reason>Moving the bowl towards the plate.</subtask_reason><move>move forward up</move><move_reason>Moving forward and slightly upward towards the plate.</move_reason>",
+    8: "<task>Put the bowl on the plate.</task><plan>1. Move to plate. 2. Place bowl. 3. Retract.</plan><subtask>Move to plate.</subtask><subtask_reason>Approaching the plate for placement.</subtask_reason><move>move forward</move><move_reason>Moving closer to the plate's location.</move_reason>",
+    9: "<task>Put the bowl on the plate.</task><plan>1. Move to plate. 2. Place bowl. 3. Retract.</plan><subtask>Move to plate.</subtask><subtask_reason>Final approach to the plate.</subtask_reason><move>move forward down</move><move_reason>Moving down and slightly forward to position the bowl above the plate.</move_reason>",
+    10: "<task>Put the bowl on the plate.</task><plan>1. Place bowl. 2. Retract.</plan><subtask>Place bowl.</subtask><subtask_reason>The bowl is positioned above the plate. Now to place it.</subtask_reason><move>move down</move><move_reason>Lowering the bowl onto the plate.</move_reason>",
+    11: "<task>Put the bowl on the plate.</task><plan>1. Place bowl. 2. Retract.</plan><subtask>Place bowl.</subtask><subtask_reason>Preparing to release the bowl.</subtask_reason><move>move down, open gripper</move><move_reason>Opening the gripper to release the bowl onto the plate while lowering slightly.</move_reason>",
+    12: "<task>Put the bowl on the plate.</task><plan>1. Retract.</plan><subtask>Retract.</subtask><subtask_reason>Bowl is placed. Robot must move away.</subtask_reason><move>open gripper</move><move_reason>Ensuring the gripper is fully open after releasing the bowl.</move_reason>",
+    13: "<task>Stop.</task><plan>1. Stop.</plan><subtask>Stop.</subtask><subtask_reason>Task is completed.</subtask_reason><move>stop</move><move_reason>The task is complete; the robot stops.</move_reason>",
+    14: "<task>Stop.</task><plan>1. Stop.</plan><subtask>Stop.</subtask><subtask_reason>Retracting the arm after the completion of the task.</subtask_reason><move>move up</move><move_reason>Lifting the arm to avoid collisions with the plate.</move_reason>",
+    15: "<task>Stop.</task><plan>1. Stop.</plan><subtask>Stop.</subtask><subtask_reason>Task completely finished.</subtask_reason><move>stop</move><move_reason>Final stop after completing the task.</move_reason>"
+}
+```
+
+FINISHED

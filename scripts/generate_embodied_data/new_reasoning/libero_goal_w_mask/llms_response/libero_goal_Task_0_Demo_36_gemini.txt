@@ -1,0 +1,34 @@
+## Task Description and High-Level Movements
+
+The task is to open the middle drawer of a wooden cabinet. The cabinet is located in an environment containing a wine rack (next to a wine bottle), a plate, a bowl (next to the plate), a cream cheese, and a flat stove.  The wine rack is situated next to the cabinet. The primary activity is manipulating the robot arm to reach the cabinet, locate the middle drawer, and then open it. The intended outcome is a successfully opened middle drawer.
+
+The high-level movements identified from the trajectory are:
+
+1. **Approach Cabinet:** Steps 0-2. The robot needs to navigate to the cabinet's vicinity.  This involves moving forward and adjusting its orientation to face the cabinet.
+
+2. **Precise Positioning:** Steps 3-7. This stage focuses on fine-tuning the robot's position and orientation to accurately reach the drawer handle.  This includes counterclockwise rotations and tilting downwards to align with the drawer.
+
+3. **Open Drawer:** Steps 8-11.  After reaching the optimal position, the robot executes a movement to open the drawer, likely engaging the drawer handle.  This may involve a lateral movement (left/right) depending on how the drawer handle is positioned.
+
+4. **Stop:** Step 9. The robot stops after successfully opening the drawer.  Step 11 is also a stop to confirm the successful opening.
+
+## Step-by-Step Reasoning Dictionary
+
+```python
+step_reasoning = {
+    0: "<task>Open the middle drawer of the cabinet.</task><plan>1. Approach cabinet. 2. Precisely position arm. 3. Open drawer. 4. Stop.</plan><subtask>Approach cabinet.</subtask><subtask_reason>The robot must first move towards the cabinet to begin the task.</subtask_reason><move>move forward</move><move_reason>This initial movement brings the robot closer to the cabinet, initiating the approach phase.</move_reason>",
+    1: "<task>Open the middle drawer of the cabinet.</task><plan>1. Approach cabinet. 2. Precisely position arm. 3. Open drawer. 4. Stop.</plan><subtask>Approach cabinet.</subtask><subtask_reason>The robot needs to adjust its orientation to directly face the cabinet.</subtask_reason><move>move forward, rotate clockwise</move><move_reason>Moving forward continues the approach, while rotating clockwise orients the robot towards the cabinet, allowing for more precise positioning.</move_reason>",
+    2: "<task>Open the middle drawer of the cabinet.</task><plan>1. Approach cabinet. 2. Precisely position arm. 3. Open drawer. 4. Stop.</plan><subtask>Approach cabinet.</subtask><subtask_reason>Fine adjustment of the robot's position and orientation before reaching for the drawer.</subtask_reason><move>move forward, rotate counterclockwise</move><move_reason>This further refines the robot's position and orientation to accurately reach the drawer.</move_reason>",
+    3: "<task>Open the middle drawer of the cabinet.</task><plan>1. Precisely position arm. 2. Open drawer. 3. Stop.</plan><subtask>Precisely position arm.</subtask><subtask_reason>The robot is close to the cabinet; now it needs to precisely align its arm to reach the drawer handle.</subtask_reason><move>rotate counterclockwise</move><move_reason>This rotation adjusts the arm's angle to better align with the drawer's position.</move_reason>",
+    4: "<task>Open the middle drawer of the cabinet.</task><plan>1. Precisely position arm. 2. Open drawer. 3. Stop.</plan><subtask>Precisely position arm.</subtask><subtask_reason>Tilting down allows the arm to reach the drawer handle.</subtask_reason><move>rotate counterclockwise, tilt down</move><move_reason>The counterclockwise rotation continues the alignment process while tilting down brings the arm to the optimal height for grasping the handle.</move_reason>",
+    5: "<task>Open the middle drawer of the cabinet.</task><plan>1. Precisely position arm. 2. Open drawer. 3. Stop.</plan><subtask>Precisely position arm.</subtask><subtask_reason>Final adjustments to the arm's position before attempting to open the drawer.</subtask_reason><move>move forward, rotate counterclockwise, tilt down</move><move_reason>This combination of movements fine-tunes the arm's position and orientation to ensure accurate grasping of the drawer handle.</move_reason>",
+    6: "<task>Open the middle drawer of the cabinet.</task><plan>1. Precisely position arm. 2. Open drawer. 3. Stop.</plan><subtask>Precisely position arm.</subtask><subtask_reason>Minor adjustment to be perfectly aligned with the handle.</subtask_reason><move>move forward, rotate counterclockwise</move><move_reason>A final minor adjustment to ensure the arm is perfectly aligned to grasp the handle.</move_reason>",
+    7: "<task>Open the middle drawer of the cabinet.</task><plan>1. Open drawer. 2. Stop.</plan><subtask>Open drawer.</subtask><subtask_reason>The arm is now precisely positioned; the next step is to open the drawer.</subtask_reason><move>rotate counterclockwise</move><move_reason>This rotation might be the action needed to engage the drawer handle.</move_reason>",
+    8: "<task>Open the middle drawer of the cabinet.</task><plan>1. Stop.</plan><subtask>Open drawer.</subtask><subtask_reason>The arm is now positioned to pull open the drawer.</subtask_reason><move>move right</move><move_reason>A lateral movement to the right may be necessary to pull the drawer open, depending on the drawer's mechanism.</move_reason>",
+    9: "<task>Stop.</task><plan>1. Stop.</plan><subtask>Stop.</subtask><subtask_reason>The drawer is now open.</subtask_reason><move>stop</move><move_reason>The robot stops after successfully opening the drawer.</move_reason>",
+    10: "<task>Stop.</task><plan>1. Stop.</plan><subtask>Stop.</subtask><subtask_reason>Confirmation of the successful opening of the drawer.</subtask_reason><move>move left</move><move_reason>A small correction to avoid collision, this might be a precautionary step.</move_reason>",
+    11: "<task>Stop.</task><plan>1. Stop.</plan><subtask>Stop.</subtask><subtask_reason>The task is complete.</subtask_reason><move>stop</move><move_reason>Final stop to confirm task completion.</move_reason>"
+}
+```
+
+FINISHED

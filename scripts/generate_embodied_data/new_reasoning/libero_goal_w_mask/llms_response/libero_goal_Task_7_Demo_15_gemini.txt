@@ -1,0 +1,38 @@
+## Task Description and High-Level Movements
+
+The task is to turn on the stove.  The intended outcome is to have the stove's switch in the "on" position.  The relevant objects are the robotic arm, the stove (located on the left side of a table), and potentially the stove's switch (assumed to be within reach of the arm). Other objects such as a wooden cabinet, wine rack, wine bottle, cream cheese, bowl, and plate are present in the environment but are not directly involved in the task.
+
+The robot likely followed this high-level plan:
+
+1. **Approach the stove:** The robot needs to navigate to the stove's location. (Steps 1-5)
+2. **Reach the stove switch:**  The robot needs to position its gripper to grasp the stove switch. (Steps 4-7)
+3. **Turn on the stove:** The robot needs to manipulate the stove switch to the "on" position. (Steps 9-11)
+
+**High-Level Movement Details:**
+
+| High-Level Movement | Step Range | Justification |
+|---|---|---|
+| Approach the stove | 1-5 | The robot needs to move from its initial position to a location where it can reach the stove. The movements indicate a leftward and downward trajectory towards the stove's approximate location. |
+| Reach the stove switch | 4-7 | This involves precise positioning of the gripper to accurately grasp the stove's switch.  The downward movements suggest the robot is aiming for the switch's location on the stove. The gripper closing action indicates it is attempting to grasp the switch.  |
+| Turn on the stove | 9-11 | This involves rotating the stove's switch. The clockwise rotation is consistent with a typical stove switch operation. The opening of the gripper suggests releasing the switch after turning it. |
+
+
+```python
+step_reasoning = {
+    0: "<task>Turn on the stove.</task><plan>1. Approach the stove. 2. Reach the stove switch. 3. Turn on the stove. 4. Stop.</plan><subtask>Approach the stove.</subtask><subtask_reason>The robot needs to position itself to reach the stove.</subtask_reason><move>stop</move><move_reason>The robot is initially stationary, preparing to move towards the stove.</move_reason>",
+    1: "<task>Turn on the stove.</task><plan>1. Approach the stove. 2. Reach the stove switch. 3. Turn on the stove. 4. Stop.</plan><subtask>Approach the stove.</subtask><subtask_reason>The robot is moving towards the stove.</subtask_reason><move>move left</move><move_reason>This movement directs the robot towards the left side of the table where the stove is located.</move_reason>",
+    2: "<task>Turn on the stove.</task><plan>1. Approach the stove. 2. Reach the stove switch. 3. Turn on the stove. 4. Stop.</plan><subtask>Approach the stove.</subtask><subtask_reason>Continues approach, adjusting trajectory slightly backward.</subtask_reason><move>move backward left</move><move_reason>Slight adjustment in trajectory to refine approach to the stove.</move_reason>",
+    3: "<task>Turn on the stove.</task><plan>1. Approach the stove. 2. Reach the stove switch. 3. Turn on the stove. 4. Stop.</plan><subtask>Approach the stove.</subtask><subtask_reason>Final adjustment to be in a position to reach the stove.</subtask_reason><move>move left</move><move_reason>Further refinement of the approach, achieving the correct position for the next step.</move_reason>",
+    4: "<task>Turn on the stove.</task><plan>1. Reach the stove switch. 2. Turn on the stove. 3. Stop.</plan><subtask>Reach the stove switch.</subtask><subtask_reason>The robot is now close enough to reach the stove switch.</subtask_reason><move>move left down</move><move_reason>This movement lowers the arm and moves it closer to the stove switch.</move_reason>",
+    5: "<task>Turn on the stove.</task><plan>1. Reach the stove switch. 2. Turn on the stove. 3. Stop.</plan><subtask>Reach the stove switch.</subtask><subtask_reason>Precise positioning to grasp the switch.</subtask_reason><move>move down</move><move_reason>Further precise positioning to grasp the switch, which is assumed to be on the top surface of the stove.</move_reason>",
+    6: "<task>Turn on the stove.</task><plan>1. Reach the stove switch. 2. Turn on the stove. 3. Stop.</plan><subtask>Reach the stove switch.</subtask><subtask_reason>Gripping the switch is needed before turning.</subtask_reason><move>move down, close gripper</move><move_reason>The robot is closing its gripper around the stove switch.</move_reason>",
+    7: "<task>Turn on the stove.</task><plan>1. Turn on the stove. 2. Stop.</plan><subtask>Turn on the stove.</subtask><subtask_reason>The switch is now grasped; next is to turn it.</subtask_reason><move>close gripper</move><move_reason>Ensuring the switch is securely grasped before rotation.</move_reason>",
+    8: "<task>Turn on the stove.</task><plan>1. Turn on the stove. 2. Stop.</plan><subtask>Turn on the stove.</subtask><subtask_reason>Pause before rotation.</subtask_reason><move>stop</move><move_reason>A brief pause before initiating the rotation.</move_reason>",
+    9: "<task>Turn on the stove.</task><plan>1. Stop.</plan><subtask>Turn on the stove.</subtask><subtask_reason>Turning the switch to activate the stove.</subtask_reason><move>rotate clockwise</move><move_reason>Rotating the switch clockwise to turn on the stove.</move_reason>",
+    10: "<task>Turn on the stove.</task><plan>1. Stop.</plan><subtask>Turn on the stove.</subtask><subtask_reason>Releasing the switch after activation.</subtask_reason><move>rotate clockwise, open gripper</move><move_reason>Rotating further and releasing the switch after it is turned.</move_reason>",
+    11: "<task>Stop.</task><plan>1. Stop.</plan><subtask>Stop.</subtask><subtask_reason>Task completed.</subtask_reason><move>open gripper</move><move_reason>The robot releases its grip on the stove switch.</move_reason>",
+    12: "<task>Stop.</task><plan>1. Stop.</plan><subtask>Stop.</subtask><subtask_reason>Task completed.</subtask_reason><move>stop</move><move_reason>The robot stops after successfully turning on the stove.</move_reason>"
+}
+```
+
+FINISHED

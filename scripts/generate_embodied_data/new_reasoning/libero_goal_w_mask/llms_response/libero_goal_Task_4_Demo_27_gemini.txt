@@ -1,0 +1,38 @@
+## Task Description and High-Level Movements
+
+The task is to move the Akita black bowl, located on the table among other objects (wine bottle, cream cheese, plate, etc.), to the top of the wooden cabinet, situated on the right side of the table.  The primary activity is manipulation and placement of the bowl. The intended outcome is the bowl resting securely on the cabinet's surface.
+
+The general sequence of high-level movements likely followed is:
+
+1. **Approach and grasp the bowl:** The robot needs to navigate to the bowl's location, position itself appropriately, and grasp the bowl securely using its gripper.  This likely encompasses steps 0-5.
+
+2. **Lift and move the bowl towards the cabinet:** Once grasped, the robot must lift the bowl and transport it to the cabinet. Steps 6-10 seem to cover this movement.
+
+3. **Place the bowl on the cabinet:**  The robot needs to position itself above the cabinet's surface and carefully release the bowl, ensuring it rests stably. This phase is captured in steps 11-15.
+
+4. **Retreat:** After placing the bowl, the robot likely retracts to a safe position, ending the task. This involves steps 15-16.
+
+
+```python
+step_reasoning = {
+    0: "<task>Put the bowl on top of the cabinet.</task><plan>1. Approach and grasp the bowl. 2. Lift and move the bowl towards the cabinet. 3. Place the bowl on the cabinet. 4. Retreat.</plan><subtask>Approach and grasp the bowl.</subtask><subtask_reason>The robot must first get close to the bowl to be able to grasp it.</subtask_reason><move>move forward down</move><move_reason>This initial movement lowers the robot arm and moves it forward, approaching the bowl on the table.</move_reason>",
+    1: "<task>Put the bowl on top of the cabinet.</task><plan>1. Approach and grasp the bowl. 2. Lift and move the bowl towards the cabinet. 3. Place the bowl on the cabinet. 4. Retreat.</plan><subtask>Approach and grasp the bowl.</subtask><subtask_reason>The robot continues its approach to the bowl.</subtask_reason><move>move forward</move><move_reason>Moving forward brings the robot closer to the bowl's location on the table.</move_reason>",
+    2: "<task>Put the bowl on top of the cabinet.</task><plan>1. Approach and grasp the bowl. 2. Lift and move the bowl towards the cabinet. 3. Place the bowl on the cabinet. 4. Retreat.</plan><subtask>Approach and grasp the bowl.</subtask><subtask_reason>Final approach to the bowl before grasping.</subtask_reason><move>move forward down</move><move_reason>This movement positions the arm directly above the bowl, ready for grasping.</move_reason>",
+    3: "<task>Put the bowl on top of the cabinet.</task><plan>1. Approach and grasp the bowl. 2. Lift and move the bowl towards the cabinet. 3. Place the bowl on the cabinet. 4. Retreat.</plan><subtask>Approach and grasp the bowl.</subtask><subtask_reason>Positioning the gripper for grasping.</subtask_reason><move>move down</move><move_reason>The robot lowers the gripper to make contact with the bowl.</move_reason>",
+    4: "<task>Put the bowl on top of the cabinet.</task><plan>1. Approach and grasp the bowl. 2. Lift and move the bowl towards the cabinet. 3. Place the bowl on the cabinet. 4. Retreat.</plan><subtask>Approach and grasp the bowl.</subtask><subtask_reason>Closing the gripper to secure the bowl.</subtask_reason><move>move down, close gripper</move><move_reason>The robot closes the gripper around the bowl to ensure a secure grasp.</move_reason>",
+    5: "<task>Put the bowl on top of the cabinet.</task><plan>1. Lift and move the bowl towards the cabinet. 2. Place the bowl on the cabinet. 3. Retreat.</plan><subtask>Lift and move the bowl towards the cabinet.</subtask><subtask_reason>The bowl has been grasped; now it needs to be lifted and moved.</subtask_reason><move>close gripper</move><move_reason>Ensuring a firm grip on the bowl before lifting.</move_reason>",
+    6: "<task>Put the bowl on top of the cabinet.</task><plan>1. Lift and move the bowl towards the cabinet. 2. Place the bowl on the cabinet. 3. Retreat.</plan><subtask>Lift and move the bowl towards the cabinet.</subtask><subtask_reason>Begin lifting and moving the bowl towards the cabinet.</subtask_reason><move>stop</move><move_reason>A brief pause before lifting the bowl.</move_reason>",
+    7: "<task>Put the bowl on top of the cabinet.</task><plan>1. Lift and move the bowl towards the cabinet. 2. Place the bowl on the cabinet. 3. Retreat.</plan><subtask>Lift and move the bowl towards the cabinet.</subtask><subtask_reason>Lifting the bowl.</subtask_reason><move>move up</move><move_reason>The robot lifts the bowl clear of the table.</move_reason>",
+    8: "<task>Put the bowl on top of the cabinet.</task><plan>1. Lift and move the bowl towards the cabinet. 2. Place the bowl on the cabinet. 3. Retreat.</plan><subtask>Lift and move the bowl towards the cabinet.</subtask><subtask_reason>Moving towards the cabinet.</subtask_reason><move>move right up</move><move_reason>Moving right and slightly up to navigate towards the cabinet.</move_reason>",
+    9: "<task>Put the bowl on top of the cabinet.</task><plan>1. Lift and move the bowl towards the cabinet. 2. Place the bowl on the cabinet. 3. Retreat.</plan><subtask>Lift and move the bowl towards the cabinet.</subtask><subtask_reason>Continuing movement towards the cabinet.</subtask_reason><move>move right</move><move_reason>Moving right to align with the cabinet.</move_reason>",
+    10: "<task>Put the bowl on top of the cabinet.</task><plan>1. Lift and move the bowl towards the cabinet. 2. Place the bowl on the cabinet. 3. Retreat.</plan><subtask>Lift and move the bowl towards the cabinet.</subtask><subtask_reason>Final adjustments before placing the bowl.</subtask_reason><move>move forward right</move><move_reason>Moving closer to the cabinet and adjusting position.</move_reason>",
+    11: "<task>Put the bowl on top of the cabinet.</task><plan>1. Place the bowl on the cabinet. 2. Retreat.</plan><subtask>Place the bowl on the cabinet.</subtask><subtask_reason>The bowl is now above the cabinet; it needs to be placed.</subtask_reason><move>move right</move><move_reason>Fine-tuning positioning above the cabinet.</move_reason>",
+    12: "<task>Put the bowl on top of the cabinet.</task><plan>1. Place the bowl on the cabinet. 2. Retreat.</plan><subtask>Place the bowl on the cabinet.</subtask><subtask_reason>Lowering the bowl onto the cabinet.</subtask_reason><move>move down</move><move_reason>Lowering the bowl to place it on the cabinet's surface.</move_reason>",
+    13: "<task>Put the bowl on top of the cabinet.</task><plan>1. Place the bowl on the cabinet. 2. Retreat.</plan><subtask>Place the bowl on the cabinet.</subtask><subtask_reason>Opening the gripper to release the bowl.</subtask_reason><move>move down, open gripper</move><move_reason>Lowering the arm further and releasing the bowl.</move_reason>",
+    14: "<task>Put the bowl on top of the cabinet.</task><plan>1. Retreat.</plan><subtask>Retreat.</subtask><subtask_reason>The bowl is placed; now the robot needs to move away.</subtask_reason><move>open gripper</move><move_reason>Fully opening the gripper to ensure the bowl is released.</move_reason>",
+    15: "<task>Stop.</task><plan>1. Stop.</plan><subtask>Stop.</subtask><subtask_reason>The task is complete.</subtask_reason><move>stop</move><move_reason>The robot stops after completing the task.</move_reason>",
+    16: "<task>Stop.</task><plan>1. Stop.</plan><subtask>Stop.</subtask><subtask_reason>Final retraction.</subtask_reason><move>move up</move><move_reason>Retracting the arm upwards to a safe position.</move_reason>"
+}
+```
+
+FINISHED

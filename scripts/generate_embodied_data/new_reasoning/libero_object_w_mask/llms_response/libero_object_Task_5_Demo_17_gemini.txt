@@ -1,0 +1,40 @@
+## Task Description and High-Level Movements
+
+The task is to pick up a carton of tomato sauce and place it in a basket. The environment contains a basket on the floor, milk and butter on a table (irrelevant to this task), orange juice and chocolate pudding on the floor (also irrelevant). The tomato sauce's location is not explicitly stated but can be inferred from the trajectory.  The general sequence of high-level movements involves: approaching the tomato sauce, picking it up, and moving it to the basket.
+
+
+The high-level movements and their corresponding trajectory steps are as follows:
+
+1. **Approach Tomato Sauce:** Steps 0-4.  This movement is necessary to position the robot arm close enough to the tomato sauce to grasp it. The robot needs to navigate to the general vicinity of the sauce before attempting to pick it up.
+
+2. **Grasp Tomato Sauce:** Steps 5-6.  This is crucial for successfully completing the task.  The gripper must close around the sauce to secure a stable hold.
+
+3. **Lift and Move to Basket:** Steps 7-11. After grasping the sauce, the robot needs to lift it and move it towards the basket. This requires vertical movement (up) and horizontal movement (left).
+
+4. **Place in Basket:** Steps 12-14.  This involves positioning the sauce above the basket and then releasing it.
+
+5. **Depart:** Step 15. The robot concludes the task after successfully placing the tomato sauce in the basket.
+
+
+```python
+step_reasoning = {
+    0: "<task>Pick up the tomato sauce and place it in the basket.</task><plan>1. Approach tomato sauce. 2. Grasp tomato sauce. 3. Move to basket. 4. Place in basket. 5. Stop.</plan><subtask>Approach tomato sauce.</subtask><subtask_reason>The robot needs to get closer to the tomato sauce before it can pick it up.</subtask_reason><move>move forward</move><move_reason>This initial movement starts the approach towards the target location.</move_reason>",
+    1: "<task>Pick up the tomato sauce and place it in the basket.</task><plan>1. Approach tomato sauce. 2. Grasp tomato sauce. 3. Move to basket. 4. Place in basket. 5. Stop.</plan><subtask>Approach tomato sauce.</subtask><subtask_reason>The robot continues its approach, possibly needing to adjust its orientation.</subtask_reason><move>move forward, rotate counterclockwise</move><move_reason>This combines forward movement with a counter-clockwise rotation to better align the robot arm with the sauce.</move_reason>",
+    2: "<task>Pick up the tomato sauce and place it in the basket.</task><plan>1. Approach tomato sauce. 2. Grasp tomato sauce. 3. Move to basket. 4. Place in basket. 5. Stop.</plan><subtask>Approach tomato sauce.</subtask><subtask_reason>Fine adjustment of the robot's orientation before reaching for the sauce.</subtask_reason><move>rotate counterclockwise</move><move_reason>Further refining the orientation to optimally position the gripper for grasping.</move_reason>",
+    3: "<task>Pick up the tomato sauce and place it in the basket.</task><plan>1. Approach tomato sauce. 2. Grasp tomato sauce. 3. Move to basket. 4. Place in basket. 5. Stop.</plan><subtask>Approach tomato sauce.</subtask><subtask_reason>The robot is lowering itself to the level of the tomato sauce.</subtask_reason><move>move down, rotate counterclockwise</move><move_reason>Lowering the arm to the sauce's height while maintaining proper orientation.</move_reason>",
+    4: "<task>Pick up the tomato sauce and place it in the basket.</task><plan>1. Approach tomato sauce. 2. Grasp tomato sauce. 3. Move to basket. 4. Place in basket. 5. Stop.</plan><subtask>Approach tomato sauce.</subtask><subtask_reason>Final positioning adjustment before grasping the sauce.</subtask_reason><move>move down</move><move_reason>Final vertical adjustment to be in optimal position to grasp.</move_reason>",
+    5: "<task>Pick up the tomato sauce and place it in the basket.</task><plan>1. Grasp tomato sauce. 2. Move to basket. 3. Place in basket. 4. Stop.</plan><subtask>Grasp tomato sauce.</subtask><subtask_reason>The robot is now in position to grasp the tomato sauce.</subtask_reason><move>move down, close gripper</move><move_reason>Moving down to firmly grasp the sauce while simultaneously closing the gripper.</move_reason>",
+    6: "<task>Pick up the tomato sauce and place it in the basket.</task><plan>1. Move to basket. 2. Place in basket. 3. Stop.</plan><subtask>Grasp tomato sauce.</subtask><subtask_reason>Securing the grip on the sauce.</subtask_reason><move>close gripper</move><move_reason>Ensuring the tomato sauce is firmly held.</move_reason>",
+    7: "<task>Pick up the tomato sauce and place it in the basket.</task><plan>1. Move to basket. 2. Place in basket. 3. Stop.</plan><subtask>Move to basket.</subtask><subtask_reason>The tomato sauce has been grasped; now move towards the basket.</subtask_reason><move>stop</move><move_reason>A brief pause before lifting and moving.</move_reason>",
+    8: "<task>Pick up the tomato sauce and place it in the basket.</task><plan>1. Move to basket. 2. Place in basket. 3. Stop.</plan><subtask>Move to basket.</subtask><subtask_reason>Lifting the sauce to clear any obstacles.</subtask_reason><move>move up</move><move_reason>Lifting the sauce to avoid collisions during transport.</move_reason>",
+    9: "<task>Pick up the tomato sauce and place it in the basket.</task><plan>1. Move to basket. 2. Place in basket. 3. Stop.</plan><subtask>Move to basket.</subtask><subtask_reason>Moving towards the basket, which is likely to the left and slightly higher.</subtask_reason><move>move left up</move><move_reason>Moving towards the basket, combining horizontal and vertical movement.</move_reason>",
+    10: "<task>Pick up the tomato sauce and place it in the basket.</task><plan>1. Move to basket. 2. Place in basket. 3. Stop.</plan><subtask>Move to basket.</subtask><subtask_reason>Approaching the basket horizontally.</subtask_reason><move>move left</move><move_reason>Horizontal adjustment to center the sauce above the basket.</move_reason>",
+    11: "<task>Pick up the tomato sauce and place it in the basket.</task><plan>1. Place in basket. 2. Stop.</plan><subtask>Move to basket.</subtask><subtask_reason>Final adjustment before placing the sauce.</subtask_reason><move>move left down</move><move_reason>Minor adjustments in position before placing the sauce into the basket.</move_reason>",
+    12: "<task>Pick up the tomato sauce and place it in the basket.</task><plan>1. Place in basket. 2. Stop.</plan><subtask>Place in basket.</subtask><subtask_reason>The robot is positioned above the basket; now to lower the sauce gently.</subtask_reason><move>move down</move><move_reason>Lowering the sauce into the basket.</move_reason>",
+    13: "<task>Pick up the tomato sauce and place it in the basket.</task><plan>1. Stop.</plan><subtask>Place in basket.</subtask><subtask_reason>The sauce is nearly in the basket. </subtask_reason><move>stop</move><move_reason>A brief pause to ensure stable placement.</move_reason>",
+    14: "<task>Stop.</task><plan>1. Stop.</plan><subtask>Stop.</subtask><subtask_reason>The sauce is in the basket.</subtask_reason><move>open gripper</move><move_reason>Releasing the sauce into the basket.</move_reason>",
+    15: "<task>Stop.</task><plan>1. Stop.</plan><subtask>Stop.</subtask><subtask_reason>The task is complete.</subtask_reason><move>stop</move><move_reason>The robot has completed the task.</move_reason>"
+}
+```
+
+FINISHED

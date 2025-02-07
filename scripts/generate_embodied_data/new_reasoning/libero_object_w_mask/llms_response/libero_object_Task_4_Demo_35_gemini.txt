@@ -1,0 +1,43 @@
+## Task Description and High-Level Movements
+
+The task is to pick up a bottle of ketchup from a surface and place it in a basket located on the same surface.  The environment contains several other condiment bottles (bbq sauce, salad dressing, alphabet soup, cream cheese, milk) on the same wooden surface/table as the ketchup and the basket.  The robot must navigate around these objects to successfully complete the task.
+
+The high-level movements identified are:
+
+1. **Approach Ketchup:** Steps 0-3. The robot needs to position itself correctly above the ketchup bottle to grasp it. This involves moving right and then down to approach the ketchup bottle.
+
+2. **Grasp Ketchup:** Steps 4-6. The robot closes its gripper to pick up the ketchup bottle. This requires the robot to be positioned correctly above the ketchup.
+
+3. **Lift Ketchup:** Steps 6-7. The robot lifts the ketchup bottle to a safe height to avoid obstacles during transport to the basket.
+
+4. **Transport Ketchup:** Steps 7-10. The robot moves the ketchup bottle towards the basket.  This involves a movement left and up to clear space, followed by movement left and down to approach the basket.
+
+5. **Position over Basket:** Steps 10-11. The robot carefully positions itself above the basket to release the ketchup.
+
+6. **Release Ketchup:** Steps 11-14. The robot opens its gripper to release the ketchup bottle into the basket and moves upward to clear the basket.
+
+7. **Retreat:** Steps 14-15. The robot moves to a safe position after completing the task.
+
+
+```python
+step_reasoning = {
+    0: "<task>Pick up the ketchup and place it in the basket.</task><plan>1. Approach ketchup. 2. Grasp ketchup. 3. Lift ketchup. 4. Transport ketchup. 5. Position over basket. 6. Release ketchup. 7. Retreat.</plan><subtask>Approach ketchup.</subtask><subtask_reason>The robot must position itself over the ketchup before grasping it.</subtask_reason><move>move right</move><move_reason>This initial movement starts the approach towards the ketchup bottle.</move_reason>",
+    1: "<task>Pick up the ketchup and place it in the basket.</task><plan>1. Approach ketchup. 2. Grasp ketchup. 3. Lift ketchup. 4. Transport ketchup. 5. Position over basket. 6. Release ketchup. 7. Retreat.</plan><subtask>Approach ketchup.</subtask><subtask_reason>The robot is still approaching the ketchup.</subtask_reason><move>stop</move><move_reason>A brief stop to adjust positioning before continuing the approach.</move_reason>",
+    2: "<task>Pick up the ketchup and place it in the basket.</task><plan>1. Approach ketchup. 2. Grasp ketchup. 3. Lift ketchup. 4. Transport ketchup. 5. Position over basket. 6. Release ketchup. 7. Retreat.</plan><subtask>Approach ketchup.</subtask><subtask_reason>The robot needs to move closer to the ketchup bottle to be in a position to grasp it.</subtask_reason><move>move down</move><move_reason>Moving down brings the gripper closer to the ketchup bottle.</move_reason>",
+    3: "<task>Pick up the ketchup and place it in the basket.</task><plan>1. Approach ketchup. 2. Grasp ketchup. 3. Lift ketchup. 4. Transport ketchup. 5. Position over basket. 6. Release ketchup. 7. Retreat.</plan><subtask>Approach ketchup.</subtask><subtask_reason>Final adjustment before grasping.</subtask_reason><move>stop</move><move_reason>A final stop to ensure precise positioning before grasping the ketchup bottle.</move_reason>",
+    4: "<task>Pick up the ketchup and place it in the basket.</task><plan>1. Grasp ketchup. 2. Lift ketchup. 3. Transport ketchup. 4. Position over basket. 5. Release ketchup. 6. Retreat.</plan><subtask>Grasp ketchup.</subtask><subtask_reason>The robot is now positioned to grasp the ketchup bottle.</subtask_reason><move>close gripper</move><move_reason>Closing the gripper secures the ketchup bottle.</move_reason>",
+    5: "<task>Pick up the ketchup and place it in the basket.</task><plan>1. Grasp ketchup. 2. Lift ketchup. 3. Transport ketchup. 4. Position over basket. 5. Release ketchup. 6. Retreat.</plan><subtask>Grasp ketchup.</subtask><subtask_reason>Verifying the grip on the ketchup bottle.</subtask_reason><move>stop</move><move_reason>A pause to confirm a secure grip.</move_reason>",
+    6: "<task>Pick up the ketchup and place it in the basket.</task><plan>1. Lift ketchup. 2. Transport ketchup. 3. Position over basket. 4. Release ketchup. 5. Retreat.</plan><subtask>Lift ketchup.</subtask><subtask_reason>Lifting clears the ketchup bottle from the table.</subtask_reason><move>move up</move><move_reason>Lifts the ketchup bottle.</move_reason>",
+    7: "<task>Pick up the ketchup and place it in the basket.</task><plan>1. Transport ketchup. 2. Position over basket. 3. Release ketchup. 4. Retreat.</plan><subtask>Transport ketchup.</subtask><subtask_reason>The robot must now move the ketchup to the basket.</subtask_reason><move>move left up</move><move_reason>This movement starts the transport, moving upward to clear any potential obstacles.</move_reason>",
+    8: "<task>Pick up the ketchup and place it in the basket.</task><plan>1. Transport ketchup. 2. Position over basket. 3. Release ketchup. 4. Retreat.</plan><subtask>Transport ketchup.</subtask><subtask_reason>Continuing to move the ketchup towards the basket.</subtask_reason><move>move left</move><move_reason>Moving left directs the ketchup towards the basket.</move_reason>",
+    9: "<task>Pick up the ketchup and place it in the basket.</task><plan>1. Transport ketchup. 2. Position over basket. 3. Release ketchup. 4. Retreat.</plan><subtask>Transport ketchup.</subtask><subtask_reason>Approaching the basket.</subtask_reason><move>move left down</move><move_reason>This brings the ketchup closer to the basket and prepares for placement.</move_reason>",
+    10: "<task>Pick up the ketchup and place it in the basket.</task><plan>1. Position over basket. 2. Release ketchup. 3. Retreat.</plan><subtask>Position over basket.</subtask><subtask_reason>The robot needs to precisely position itself above the basket before releasing the ketchup.</subtask_reason><move>move down</move><move_reason>Precise positioning above the basket.</move_reason>",
+    11: "<task>Pick up the ketchup and place it in the basket.</task><plan>1. Release ketchup. 2. Retreat.</plan><subtask>Release ketchup.</subtask><subtask_reason>The robot is now positioned to release the ketchup into the basket.</subtask_reason><move>move down, open gripper</move><move_reason>Moves down slightly and opens the gripper to release the ketchup into the basket.</move_reason>",
+    12: "<task>Pick up the ketchup and place it in the basket.</task><plan>1. Release ketchup. 2. Retreat.</plan><subtask>Release ketchup.</subtask><subtask_reason>Ensuring the ketchup is released.</subtask_reason><move>open gripper</move><move_reason>A secondary action to ensure the ketchup is released completely.</move_reason>",
+    13: "<task>Pick up the ketchup and place it in the basket.</task><plan>1. Retreat. </plan><subtask>Release ketchup.</subtask><subtask_reason>Final verification of release before moving away.</subtask_reason><move>stop</move><move_reason>A short pause to verify successful release.</move_reason>",
+    14: "<task>Pick up the ketchup and place it in the basket.</task><plan>1. Retreat.</plan><subtask>Retreat.</subtask><subtask_reason>The robot needs to move away after placing the ketchup.</subtask_reason><move>move up</move><move_reason>Moving up clears the basket.</move_reason>",
+    15: "<task>Stop.</task><plan>1. Stop.</plan><subtask>Stop.</subtask><subtask_reason>The task is complete.</subtask_reason><move>stop</move><move_reason>The task is complete.</move_reason>"
+}
+```
+
+FINISHED
