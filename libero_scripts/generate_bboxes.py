@@ -57,12 +57,14 @@ def label_single_task(data_path, debug=False):
             mask = mask.rotate(180)
 
             if debug:
-                image.save(f"raw_image_{episode_id}_{i}.png")
-                mask.save(f"mask_{episode_id}_{i}.png")
+                img_dir = f"vis_bboxes/img_episode_{episode_id}"
+                os.makedirs(img_dir, exist_ok=True)
+                image.save(os.path.join(img_dir, f"raw_image_step_{i}.png"))
 
             bboxes = mask_to_bboxes(np.array(mask), instance_id_to_names)
             if debug:
-                draw_bounding_boxes(image, bboxes, f"bboxes_{episode_id}_{i}.png")
+                bbox_dir = f"vis_bboxes/bbox_episode_{episode_id}"
+                draw_bounding_boxes(image, bboxes, os.path.join(bbox_dir, f"bboxes_{episode_id}_{i}.png"))
             bboxes_list.append(bboxes)
         bbox_results_json[episode_id] = bboxes_list
     origin_data_file.close()

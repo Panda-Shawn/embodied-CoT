@@ -1,8 +1,7 @@
 import argparse
-import hydra
-import numpy as np
 import json
 from tqdm import tqdm
+import os
 
 # try:
 #     hydra.initialize(config_path="../calvin/calvin_models/conf")
@@ -12,61 +11,58 @@ from tqdm import tqdm
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--data_dir", type=str, default="/data2/zbzhu/task_D_D")
-    parser.add_argument("--data_split", type=str, default="train")
-    parser.add_argument("--action_horizon", type=int, default=10)
+    parser.add_argument("--libero_task_suite", type=str, default=None)
+    parser.add_argument("--data_dir", type=str, default="/data/lzx/embodied-CoT/scripts/generate_embodied_data/new_reasonings")
     args = parser.parse_args()
 
-    config = hydra.compose(
-        config_name="lang_ann",
-        overrides=[
-            f"datamodule.root_data_dir={args.data_dir}",
-            "datamodule/observation_space=lang_rgb_static_robot_scene_abs_act",
-        ],
-    )
+    bboxes_file_path = os.path.join(args.data_dir, args.libero_task_suite+"_w_mask", f"{args.libero_task_suite}_bboxes.json")
+    with open(bboxes_file_path, "r") as f:
+        bboxes = json.load(f)
 
-    data_module = hydra.utils.instantiate(config.datamodule, num_workers=4)
-    data_module.prepare_data()
-    data_module.setup()
+    gripper_positions_file_path = os.path.join(args.data_dir, args.libero_task_suite+"_w_mask", f"{args.libero_task_suite}_no_noops_gripper_pos.json")
+    with open(gripper_positions_file_path, "r") as f:
+        gripper_positions = json.load(f)
 
-    if args.data_split == "train":
-        dataset = data_module.train_datasets["vis"]
-    elif args.data_split == "val":
-        dataset = data_module.val_datasets["vis"]
-    else:
-        raise ValueError(f"Invalid data split: {args.data_split}")
+    primitives_file_path = os.path.join(args.data_dir, args.libero_task_suite+"_w_mask", f"{args.libero_task_suite}_primitives.json")
+    with open(primitives_file_path, "r") as f:
+        primitives = json.load(f)
 
-    file_name = dataset.abs_datasets_dir / config.lang_folder / "auto_lang_ann.npy"
-    lang_anns = np.load(file_name, allow_pickle=True).reshape(-1)[0]
+    reasonings_file_path = os.path.join(args.data_dir, args.libero_task_suite+"_w_mask", f"{args.libero_task_suite}_plan_subtasks.json")
+    with open(reasonings_file_path, "r") as f:
+        reasonings = json.load(f)
 
-    plan_subtasks_dir = (
-        dataset.abs_datasets_dir
-        / "cot"
-        / f"plan_subtasks_batched_h{args.action_horizon}"
-    )
+    for file_path in tqdm(reasonings.keys(), desc="Merging"):
+        if file_path not in bboxes:
+            print(f"File path {file_path} not found in bboxes")
+            continue
+        if file_path not in gripper_positions:
+            print(f"File path {file_path} not found in gripper_positions")
+            continue
+        if file_path not in primitives:
+            print(f"File path {file_path} not found in primitives")
+            continue
+        bbox = bboxes[file_path]
+        gripper_position = gripper_positions[file_path]
+        primitive = primitives[file_path]
 
-    merged_plan_subtasks = {}
-    tqdm_bar = tqdm(
-        total=len(lang_anns["info"]["indx"]),
-        desc=f"Merging plan subtasks (h={args.action_horizon})",
-    )
-    for lang_idx, (ep_start, ep_end) in enumerate(lang_anns["info"]["indx"]):
-        ep_start, ep_end = int(ep_start), int(ep_end)
-        merged_plan_subtasks[str(ep_start)] = {}
-        plan_subtasks_file_name = plan_subtasks_dir / f"{ep_start}_{ep_end}.json"
-        with open(plan_subtasks_file_name, "r") as f:
-            plan_subtasks = json.load(f)
+        try:
+            assert len(bbox) == len(gripper_position) == len(primitive) == len(reasonings[file_path]["0"]["reasoning"]), f"Length mismatch for {file_path}: {len(bbox)}, {len(gripper_position)}, {len(primitive)}, {len(reasonings[file_path]['0']['reasoning'])}"
+        except Exception as e:
+            print(e)
+            continue
 
-        for step in plan_subtasks.keys():
-            if str(int(step) + ep_start) in merged_plan_subtasks[str(ep_start)]:
-                print(f"Duplicate step {step} for episode {ep_start}_{ep_end}")
-            merged_plan_subtasks[str(ep_start)][str(int(step) + ep_start)] = (
-                plan_subtasks[step]
-            )
+        reasonings[file_path]["0"]["features"].update(
+            {
+                "bboxes": bbox,
+                "gripper_position": gripper_position,
+                "move_primitive": primitives
+            }
+        )
 
-        tqdm_bar.update(1)
+    target_dir = os.path.join(args.data_dir, "final_reasonings")
+    os.makedirs(target_dir, exist_ok=True)
+    print(f"Saving to {target_dir}")
+    target_file_path = os.path.join(target_dir, f"reasoning_{args.libero_task_suite}.json")
 
-    with open(
-        plan_subtasks_dir.parent / f"merged_cot_h{args.action_horizon}.json", "w"
-    ) as f:
-        json.dump(merged_plan_subtasks, f)
+    with open(target_file_path, "w") as f:
+        json.dump(reasonings, f)

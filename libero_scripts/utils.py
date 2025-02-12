@@ -115,11 +115,20 @@ def mask_to_bboxes(mask, instance_id_to_names):
     binary_masks, instance_ids = split_instance_masks(mask, instance_id_to_names)
     bboxes = []
     for binary_mask, instance_id in zip(binary_masks, instance_ids):
-        coords = np.column_stack(np.where(binary_mask > 0))
-        x, y, w, h = cv.boundingRect(coords)
-        # box = (x, y, x + w, y + h)
-        box = (y, x, y + h, x + w)
-        bboxes.append((instance_id_to_names[instance_id], box))
+        # Convert to binary mask
+        binary_mask = (binary_mask > 0).astype(np.uint8)
+
+        # Remove noise using morphological opening
+        kernel = np.ones((3,3), np.uint8)
+        binary_mask = cv.morphologyEx(binary_mask, cv.MORPH_OPEN, kernel)
+
+        # Find contours and use the largest one
+        contours, _ = cv.findContours(binary_mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+        if contours:
+            largest_contour = max(contours, key=cv.contourArea)
+            x, y, w, h = cv.boundingRect(largest_contour)
+            box = (x, y, x + w, y + h)
+            bboxes.append((instance_id_to_names[instance_id], box))
     return bboxes
 
 
