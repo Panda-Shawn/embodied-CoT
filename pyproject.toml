@@ -9,7 +9,7 @@ authors = [
     {name = "William Chen", email="verityw@berkeley.edu"},
     {name = "Karl Pertsch", email="pertsch@berkeley.edu"},
 ]
-description = "Embodied Chain-of-Thought Reasoning"
+description = "Embodied Chain-of-Thought Reasoning"pip
 version = "1.0"
 readme = "README.md"
 requires-python = ">=3.8"

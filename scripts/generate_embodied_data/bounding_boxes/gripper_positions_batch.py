@@ -10,12 +10,12 @@ import tensorflow_datasets as tfds
 import json
 from utils import NumpyFloatValuesEncoder
 import time
-
+from tqdm import tqdm
 import os
 
 
 
-checkpoint = "google/owlvit-base-patch16"
+checkpoint = "/home/lwh/.cache/huggingface/hub/models--google--owlvit-base-patch16/snapshots/4b420debb9c806fc4caf9ecc8efb72208c0db892"
 
 # detector 自动使用cuda:0
 detector = pipeline(model=checkpoint, task="zero-shot-object-detection")
@@ -23,13 +23,13 @@ detector = pipeline(model=checkpoint, task="zero-shot-object-detection")
 sam_model = SamModel.from_pretrained("facebook/sam-vit-base")
 sam_processor = SamProcessor.from_pretrained("facebook/sam-vit-base")
 
-device = detector.device
+device = 'cuda:0'
 sam_model.to(device)
 
 image_dims = (256, 256)
 image_label = "image"
 sam_batch_num = 12
-owlvit_batch_num = 150
+owlvit_batch_num = 50
 
 def get_bounding_boxes(img, prompt="the black robotic gripper"):
 
@@ -52,13 +52,14 @@ def get_bounding_boxes_batch(images, prompt="the black robotic gripper"):
     # 初始化总的预测结果列表
     all_predictions = []
 
+    start = time.time()
     # 对 images 列表分组
     for i in range(0, len(images), owlvit_batch_num):
         # 获取当前分组的子列表
         group_images = images[i:i + owlvit_batch_num]
-
         # 对当前分组调用 detector
-        group_predictions = detector(
+        with torch.no_grad():
+            group_predictions = detector(
             group_images,
             candidate_labels=[[prompt] for _ in range(len(group_images))],  # 每个图像对应一个 prompt
             threshold=0.01
@@ -67,8 +68,13 @@ def get_bounding_boxes_batch(images, prompt="the black robotic gripper"):
         # 将当前分组的预测结果添加到总列表中
         all_predictions.extend(group_predictions)
         
-        print(f'count get bounding box from image {i} to {i + owlvit_batch_num}')
-
+        # print(f'count get bounding box from image {i} to {i + owlvit_batch_num}')
+        
+        del group_images, group_predictions  # 删除不再需要的变量
+        torch.cuda.empty_cache()  # 释放显存
+        import gc
+        gc.collect()
+    print(f'box process time {time.time() - start}')
     return all_predictions
 
 def show_box(box, ax, meta, color):
@@ -250,7 +256,7 @@ def get_gripper_pos_raw(img):
    
     return (int(pos[0]), int(pos[1])), mask, predictions[0]
 
-def get_results(pos_result, mask_result, predictions, index_nopredictions, nopredict_tuple):
+def get_results(pos_result, mask_result, predictions, index_nopredictions, nopredict_tuple, alltime):
     """
     将 pos_result, mask_result, predictions 列表中相同位置元素组成的元组放入列表 result
     并在 result 的长度等于 index_nopredictions 中的某个元素时，将 nopredict_tuple 放入 result
@@ -265,19 +271,30 @@ def get_results(pos_result, mask_result, predictions, index_nopredictions, nopre
     返回:
         List[Tuple]: 包含所有添加的元素和特定元组的列表。
     """
-    # 结果列表
-    result = []
 
     # 遍历 pos_result, mask_result, predictions
-    for pos, mask, pred in zip(pos_result, mask_result, predictions):
-        # 将相同索引的元素组成元组，并放入列表 result
-        result.append((pos, mask, pred))
+    # 假设 index_nopredictions 是一个列表，包含需要插入 nopredict_tuple 的索引
+    # 假设 nopredict_tuple 是需要插入的特殊元组
+    # 假设 pos_result, mask_result, predictions 是三个长度相同的列表
 
-        # 检查 result 的长度是否等于 index_nopredictions 中的某个元素
-        if len(result) in index_nopredictions:
-            # 将 nopredict_tuple 放入 result
+    result = []  # 用于存储最终结果的列表
+    time = 0
+    # 遍历指定次数（假设为 len(pos_result)）
+    for i in range(alltime):
+        # 检查当前索引是否在 index_nopredictions 中
+        if i in index_nopredictions:
+            # 如果当前索引在 index_nopredictions 中，插入 nopredict_tuple
             result.append(nopredict_tuple)
-
+          
+        else:
+            # 否则，插入 (pos, mask, pred)
+            pos = pos_result[time]
+            mask = mask_result[time]
+            pred = predictions[time]
+            result.append((pos, mask, pred))
+            time += 1
+         
+        
     return result
 
 def sam_batch_process(images_predict, predictions):
@@ -293,7 +310,7 @@ def sam_batch_process(images_predict, predictions):
         List: 所有批次的 masks 拼接结果。
     """
     masks = []
-
+    start = time.time()
     # 将 images_predict 和 predictions 分成批次
     for i in range(0, len(images_predict), sam_batch_num):
         # 获取当前批次的图像和预测结果
@@ -306,8 +323,8 @@ def sam_batch_process(images_predict, predictions):
         
         # 将当前批次的 masks 添加到结果列表中
         masks.extend(batch_masks)
-        
-        print(f'count get gripper mask from image {i} to {i + sam_batch_num}')
+    finishtime = time.time()
+    print(f'sam process time {finishtime - start}')
 
     return masks
 
@@ -347,7 +364,7 @@ def get_gripper_pos_sambatch(images):
 
     masks = sam_batch_process(images_predict, predictions)
 
-    
+   
     mask_result = []
     pos_result = []
     for mask in masks:
@@ -380,16 +397,16 @@ def get_gripper_pos_batch(images):
     images = [Image.fromarray(img.numpy()) for img in images]
     
     all_predictions = get_bounding_boxes_batch(images)
-    print(f'############################## {len(all_predictions)}')
+   
     for index, prediction in enumerate(all_predictions):
         if len(prediction) > 0:
             predictions.append(prediction[0])
             images_predict.append(images[index])
         else:
             index_nopredictions.append(index)
-
+ 
     masks = sam_batch_process(images_predict, predictions)
-    
+  
     mask_result = []
     pos_result = []
     for mask in masks:
@@ -398,8 +415,8 @@ def get_gripper_pos_batch(images):
         pos_result.append((int(pos[0]), int(pos[1])))
     
     nopredict_tuple = ((-1, -1), np.zeros(image_dims), None)
-    results = get_results(pos_result, mask_result, predictions, index_nopredictions, nopredict_tuple)
-
+    results = get_results(pos_result, mask_result, predictions, index_nopredictions, nopredict_tuple, len(all_predictions))
+ 
     return results
 
 def process_trajectory(episode):
@@ -408,7 +425,7 @@ def process_trajectory(episode):
 
     results = get_gripper_pos_batch(images)
     raw_trajectory = [(*result, state) for result, state in zip(results, states)]
-   
+  
     prev_found = list(range(len(raw_trajectory)))
     next_found = list(range(len(raw_trajectory)))
 
@@ -450,18 +467,7 @@ def get_corrected_positions_episode(episode, plot=False):
     images = [img.numpy() for img in images]
 
     pos = [tr[0] for tr in t]
-    def write_pos_to_txt(pos, filename="positions.txt"):
-        """
-        将 pos 列表写入文本文件。
-
-        参数:
-            pos (List[Tuple[int, int]]): 位置列表，每个元素是一个 (x, y) 元组。
-            filename (str): 输出文件名，默认为 "positions.txt"。
-        """
-        with open(filename, "w") as f:
-            
-            f.write(f"{pos}")  # 将每个 (x, y) 写入文件，每行一个位置
-    write_pos_to_txt(t, "./positions2.txt")
+    
     
     points_2d = np.array(pos, dtype=np.float32)
     points_3d = np.array([tr[-1][:3] for tr in t])
@@ -474,40 +480,95 @@ def get_corrected_positions_episode(episode, plot=False):
 
     pr_pos = reg.predict(points_3d_pr)[:, :-1].astype(int)
 
+    plot = False
+    
     if plot:
-        images = [
-            cv2.circle(img, (int(p[0]), int(p[1])), radius=5, color=(255, 0, 0), thickness=-1)
-            for img, p in zip(images, pr_pos)
-        ]
-        mediapy.show_video(images, fps=10)
+        # 创建一个 VideoWriter 对象
+        global TIM
+        output_file = f"./gripper_positions/output_video_{TIM}.mp4"  # 输出视频文件名
+        TIM += 1
+        fps = 10  # 帧率
+        frame_size = (images[0].shape[1], images[0].shape[0])  # 视频帧的宽度和高度
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # 视频编码器
+        out = cv2.VideoWriter(output_file, fourcc, fps, frame_size)
+
+        # 在图像上绘制点并写入视频
+        for img, p in zip(images, pr_pos):
+            img_with_circle = cv2.circle(img, (int(p[0]), int(p[1])), radius=5, color=(255, 0, 0), thickness=-1)
+            out.write(img_with_circle)  # 将帧写入视频
+
+        # 释放 VideoWriter 对象
+        out.release()
+        print(f"视频已保存到 {output_file}")
+
+        
+        # 如果需要显示视频
+        # mediapy.show_video(images, fps=10)
 
     return pr_pos
 
+def convert_ndarray_to_list(obj):
+    if isinstance(obj, np.ndarray):
+        return obj.tolist()  # 将NumPy数组转换为列表
+    elif isinstance(obj, dict):
+        return {key: convert_ndarray_to_list(value) for key, value in obj.items()}
+    elif isinstance(obj, list):
+        return [convert_ndarray_to_list(item) for item in obj]
+    else:
+        return obj
 
 if __name__=="__main__":
-    ds = tfds.load("libero_10_no_noops", data_dir="/data/lzx/libero_new", split=f"train[{0}%:{100}%]")
+    # ds = tfds.load("libero_10_no_noops", data_dir="/data/lzx/libero_new", split=f"train[{0}%:{100}%]")
+    import json
+    import time
+    import tensorflow_datasets as tfds
+    from tqdm import tqdm
+    import numpy as np
+
+    # 假设你已经定义了 get_corrected_positions_episode 和 convert_ndarray_to_list 函数
+    # 假设 NumpyFloatValuesEncoder 是一个自定义的 JSON 编码器
+
+    # 加载数据集
+    ds = tfds.load("furniture_bench_dataset_converted_externally_to_rlds", data_dir="/data/lzx/oxe_mods/", split=f"train[{0}%:{100}%]")
     print(f"data size: {len(ds)}")
     print("Done.")
-    gripper_positions_json_path = "./gripper_positions/gripper_positions.json"
+
+    # 定义 gripper_positions_json_path
+    gripper_positions_json_path = "/data/lwh/gripper_positions/gripper_positions_furniture_bench_dataset_converted_externally_to_rlds.json"
+
+    # 读取已有的 JSON 文件（如果存在）
+    try:
+        with open(gripper_positions_json_path, "r") as f:
+            gripper_positions_json = json.load(f)
+    except FileNotFoundError:
+        gripper_positions_json = {}
 
     start = time.time()
-    gripper_positions_json = {}
-    for ep_idx, episode in enumerate(ds):
 
-        episode_id = episode["episode_metadata"]["episode_id"].numpy()
+    # 遍历数据集
+    for ep_idx, episode in enumerate(tqdm(ds)):
+        episode_id = episode['episode_metadata']['episode_id'].numpy()
         file_path = episode["episode_metadata"]["file_path"].numpy().decode()
-        print(f"starting ep: {episode_id}, {file_path}")
-
-        pr_pos = get_corrected_positions_episode(episode)
-      
-        if file_path not in gripper_positions_json.keys():
-            gripper_positions_json[file_path] = {}
-
-        gripper_positions_json[file_path][int(episode_id)] = pr_pos
-        end = time.time()
-        print(gripper_positions_json)
-        print(end-start)
+        
+        # 如果 file_path 或 episode_id 不在已有的 JSON 中，则处理并写入
+        if file_path not in gripper_positions_json or str(episode_id) not in gripper_positions_json[file_path]:
+            print(f"starting ep: {episode_id}, {file_path}")
+            
+            pr_pos = get_corrected_positions_episode(episode)
+            
+            if file_path not in gripper_positions_json:
+                gripper_positions_json[file_path] = {}
+            
+            gripper_positions_json[file_path][str(episode_id)] = pr_pos
+            
+            # 转换数据
+            gripper_positions_json = convert_ndarray_to_list(gripper_positions_json)
+            
+            end = time.time()
+            print(f"finished ep ({ep_idx} / {len(ds)}). Elapsed time: {round(end - start, 2)}")
+        
+        # 每处理完一个 episode 就保存一次，防止程序中断导致数据丢失
         with open(gripper_positions_json_path, "w") as f:
             json.dump(gripper_positions_json, f, cls=NumpyFloatValuesEncoder)
-        print(f"finished ep ({ep_idx} / {len(ds)}). Elapsed time: {round(end - start, 2)}")
-        break
+
+    print("All episodes processed and saved.")

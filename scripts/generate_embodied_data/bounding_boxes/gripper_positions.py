@@ -23,20 +23,26 @@ detector = pipeline(model=checkpoint, task="zero-shot-object-detection")
 sam_model = SamModel.from_pretrained("facebook/sam-vit-base")
 sam_processor = SamProcessor.from_pretrained("facebook/sam-vit-base")
 
-device = detector.device
+device = 'cuda:1'
 sam_model.to(device)
 
 # print("Detector device:", detector.device)
 # print("SAM model device:", sam_model.device)
 
 image_dims = (256, 256)
-image_label = "image"
+image_label = "image_1"
 
 
-def get_bounding_boxes(img, prompt="the silver robotic gripper"):
+def get_bounding_boxes(img, prompt="the black robotic gripper"):
 
     predictions = detector(img, candidate_labels=[prompt], threshold=0.01)
-  
+    # if predictions is [], save img under ./bad_imgs
+    if len(predictions) == 0:
+        print(f'no predictions for {image_label}')
+        # save img
+        global COUNTER
+    img.save(f'./bad_imgs/{COUNTER}.png')
+    print(f'predictions: {predictions}')
     return predictions
 
 
@@ -246,7 +252,8 @@ def get_corrected_positions_episode(episode, plot=False):
 
 
 if __name__=="__main__":
-    ds = tfds.load("libero_10_no_noops", data_dir="/data/lzx/libero_new", split=f"train[{0}%:{100}%]")
+    # ds = tfds.load("libero_10_no_noops", data_dir="/data/lzx/libero_new", split=f"train[{0}%:{100}%]")
+    ds = tfds.load("bridge_orig", data_dir="/data/lzx/bridge_dataset", split=f"train[{0}%:{100}%]")
     print(f"data size: {len(ds)}")
     print("Done.")
     gripper_positions_json_path = "./gripper_positions/gripper_positions.json"
@@ -255,7 +262,7 @@ if __name__=="__main__":
     gripper_positions_json = {}
     for ep_idx, episode in enumerate(ds):
 
-        episode_id = episode["episode_metadata"]["episode_id"].numpy()
+        episode_id = ep_idx
         file_path = episode["episode_metadata"]["file_path"].numpy().decode()
         print(f"starting ep: {episode_id}, {file_path}")
 

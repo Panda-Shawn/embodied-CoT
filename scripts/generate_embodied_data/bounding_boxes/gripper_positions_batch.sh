@@ -1,1 +1,1 @@
-CUDA_VISIBLE_DEVICES=0 python gripper_positions_batch.py
+CUDA_VISIBLE_DEVICES=2,3 python gripper_positions_batch.py

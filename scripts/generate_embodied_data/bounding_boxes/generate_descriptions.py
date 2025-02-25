@@ -30,21 +30,20 @@ warnings.filterwarnings("ignore")
 split_percents = 100 // args.splits
 start = args.id * split_percents
 end = (args.id + 1) * split_percents
-
+image_label = 'image_0'
 # Load Bridge V2
-ds = tfds.load(
-    "libero_10_no_noops",
-    data_dir="/data/lzx/libero_new",
-    split=f"train[{start}%:{end}%]",
-)
-
+# ds = tfds.load(
+#     "libero_10_no_noops",
+#     data_dir="/data/lzx/libero_new",
+#     split=f"train[{start}%:{end}%]",
+# )
+ds = tfds.load("bridge_orig", data_dir="/data/lzx/bridge_dataset", split=f"train[{start}%:{end}%]")
 # Load Prismatic VLM
 print(f"Loading Prismatic VLM ({vlm_model_id})...")
 vlm = load(vlm_model_id, hf_token=hf_token)
 vlm = vlm.to(device, dtype=torch.bfloat16)
 
 results_json_path = os.path.join(args.results_path, f"results_{args.id}.json")
-
 
 def create_user_prompt(lang_instruction):
     user_prompt = "Briefly describe the things in this scene and their spatial relations to each other."
@@ -73,7 +72,7 @@ for i, episode in tqdm(enumerate(ds)):
     file_path = episode["episode_metadata"]["file_path"].numpy().decode()
     for step in episode["steps"]:
         lang_instruction = step["language_instruction"].numpy().decode()
-        image = Image.fromarray(step["observation"]["image"].numpy())
+        image = Image.fromarray(step["observation"][image_label].numpy())
 
         # user_prompt = "Describe the objects in this scene. Be specific."
         user_prompt = create_user_prompt(lang_instruction)
@@ -103,7 +102,7 @@ for i, episode in tqdm(enumerate(ds)):
             max_new_tokens=64,
             min_length=1,
         )
-        break
+        
 
     episode_json = {
         "episode_id": int(episode_id),
@@ -115,7 +114,10 @@ for i, episode in tqdm(enumerate(ds)):
     if file_path not in results_json.keys():
         results_json[file_path] = {}
 
-    results_json[file_path][int(episode_id)] = episode_json
-
-    with open(results_json_path, "w") as f:
-        json.dump(results_json, f, cls=NumpyFloatValuesEncoder)
+    results_json[file_path][str(episode_id)] = episode_json
+    print(f'finish {episode_id}')
+    # if i == 10:    
+        # break
+with open(results_json_path, "w") as f:
+    json.dump(results_json, f, cls=NumpyFloatValuesEncoder)
+    

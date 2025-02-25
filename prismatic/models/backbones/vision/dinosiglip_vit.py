@@ -144,6 +144,15 @@ class DinoSigLIPViTBackbone(VisionBackbone):
         dino_patches = self.dino_featurizer(pixel_values["dino"])
         siglip_patches = self.siglip_featurizer(pixel_values["siglip"])
 
+        if not torch.is_tensor(dino_patches):
+            print("dino_patches is not a tensor.")
+            # 这里可以根据具体情况将 dino_patches 转换为张量
+            dino_patches = torch.tensor(dino_patches)
+
+        if not torch.is_tensor(siglip_patches):
+            print("siglip_patches is not a tensor.")
+            # 这里可以根据具体情况将 siglip_patches 转换为张量
+            siglip_patches = torch.tensor(siglip_patches)
         return torch.cat([dino_patches, siglip_patches], dim=2)
 
     @property

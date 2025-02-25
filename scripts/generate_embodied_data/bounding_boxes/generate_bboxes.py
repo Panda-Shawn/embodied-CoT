@@ -21,6 +21,8 @@ parser.add_argument("--splits", type=int, default=24)
 parser.add_argument("--data-path", type=str)
 parser.add_argument("--result-path", default="./bboxes")
 
+image_label = 'image_0'
+
 args = parser.parse_args()
 bbox_json_path = os.path.join(args.result_path, f"results_{args.id}_bboxes.json")
 
@@ -29,12 +31,13 @@ split_percents = 100 // args.splits
 start = args.id * split_percents
 end = (args.id + 1) * split_percents
 
-ds = tfds.load("libero_spatial_no_noops", data_dir="/data/lzx/libero_new", split=f"train[{start}%:{end}%]")
+# ds = tfds.load("libero_spatial_no_noops", data_dir="/data/lzx/libero_new", split=f"train[{start}%:{end}%]")
+ds = tfds.load("bridge_orig", data_dir="/data/lzx/bridge_dataset", split=f"train[{start}%:{end}%]")
 print(f"data size: {len(ds)}")
 print("Done.")
 
 print("Loading Prismatic descriptions...")
-results_json_path = "./descriptions/full_descriptions.json"
+results_json_path = "./descriptions/results_0.json"
 with open(results_json_path, "r") as f:
     results_json = json.load(f)
 print("Done.")
@@ -71,7 +74,7 @@ for ep_idx, episode in enumerate(ds):
     for step_idx, step in enumerate(episode["steps"]):
         if step_idx == 0:
             lang_instruction = step["language_instruction"].numpy().decode()
-        image = Image.fromarray(step["observation"]["image"].numpy())
+        image = Image.fromarray(step["observation"][image_label].numpy())
         # print("seg_obj_text", seg_obj_text)
         inputs = processor(
             images=image,
@@ -121,4 +124,4 @@ for ep_idx, episode in enumerate(ds):
         json.dump(bbox_results_json, f, cls=NumpyFloatValuesEncoder)
     print(f"ID {args.id} finished ep ({ep_idx} / {len(ds)}). Elapsed time: {round(end - start, 2)}")
     # print(f"Caption: {description}")
-    # break
+    break

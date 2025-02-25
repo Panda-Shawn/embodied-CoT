@@ -1,1 +1,1 @@
-CUDA_VISIBLE_DEVICES="0,1" python generate_bboxes.py --id 0 --gpu 0 --splits 1
+CUDA_VISIBLE_DEVICES="2,3" python generate_bboxes_save.py --id 0 --gpu 0 --splits 100
