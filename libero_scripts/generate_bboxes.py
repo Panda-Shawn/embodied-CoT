@@ -61,7 +61,7 @@ def label_single_task(data_path, debug=False):
                 os.makedirs(img_dir, exist_ok=True)
                 image.save(os.path.join(img_dir, f"raw_image_step_{i}.png"))
 
-            bboxes = mask_to_bboxes(np.array(mask), instance_id_to_names)
+            bboxes = mask_to_bboxes(mask, instance_id_to_names)
             if debug:
                 bbox_dir = f"vis_bboxes/bbox_episode_{episode_id}"
                 draw_bounding_boxes(image, bboxes, os.path.join(bbox_dir, f"bboxes_{episode_id}_{i}.png"))
