@@ -212,17 +212,17 @@ if __name__ == "__main__":
     parser.add_argument("--action_horizon", type=int, default=10)
     parser.add_argument("--force_regenerate", action="store_true")
     parser.add_argument("--api_provider", type=str, default="gemini")
-    parser.add_argument("--libero_dataset_dir", type=str)
-    parser.add_argument("--libero_scene_desc_path", type=str, default=None)
-    parser.add_argument("--libero_primitives_path", type=str, default=None)
-    parser.add_argument("--libero_plan_subtasks_path", type=str, default=None)
+    parser.add_argument("--dataset_dir", type=str)
+    parser.add_argument("--scene_desc_path", type=str, default=None)
+    parser.add_argument("--primitives_path", type=str, default=None)
+    parser.add_argument("--plan_subtasks_path", type=str, default=None)
     parser.add_argument("--task_metadata_path", type=str, default=None)
     parser.add_argument("--task_plan_path", type=str, default=None)
     parser.add_argument("--llms_response_save_dir", type=str, default=None)
     parser.add_argument("--results_path", type=str, default=None)
     args = parser.parse_args()
 
-    cot_dir = os.path.join(args.libero_dataset_dir, "cot")
+    cot_dir = os.path.join(args.dataset_dir, "cot")
     if args.llms_response_save_dir is None:
         os.makedirs(cot_dir, exist_ok=True)
         args.llms_response_save_dir = os.path.join(
@@ -234,29 +234,29 @@ if __name__ == "__main__":
         cot_dir, f"raw_api_responses_h{args.action_horizon}_task_plan"
     )
 
-    if args.libero_primitives_path is None:
+    if args.primitives_path is None:
         os.makedirs(cot_dir, exist_ok=True)
-        args.libero_primitives_path = os.path.join(
+        args.primitives_path = os.path.join(
             cot_dir, f"primitives_h{args.action_horizon}.json"
         )
 
-    if args.libero_plan_subtasks_path is None:
+    if args.plan_subtasks_path is None:
         os.makedirs(cot_dir, exist_ok=True)
-        args.libero_plan_subtasks_path = os.path.join(
+        args.plan_subtasks_path = os.path.join(
             cot_dir, f"plan_subtasks_h{args.action_horizon}.json"
         )
 
-    if args.libero_scene_desc_path is None:
+    if args.scene_desc_path is None:
         os.makedirs(cot_dir, exist_ok=True)
-        args.libero_scene_desc_path = os.path.join(cot_dir, "scene_descriptions.json")
+        args.scene_desc_path = os.path.join(cot_dir, "scene_descriptions.json")
 
-    with open(args.libero_primitives_path, "r") as f:
+    with open(args.primitives_path, "r") as f:
         primitives_dict = json.load(f)
 
-    with open(args.libero_plan_subtasks_path, "r") as f:
+    with open(args.plan_subtasks_path, "r") as f:
         plan_subtasks_dict = json.load(f)
 
-    with open(args.libero_scene_desc_path, "r") as f:
+    with open(args.scene_desc_path, "r") as f:
         scene_description_dict = json.load(f)
 
     os.makedirs(args.llms_response_save_dir, exist_ok=True)
@@ -319,7 +319,7 @@ if __name__ == "__main__":
             scene_description = scene_description_dict[episode_id]["caption"]
             task_description = scene_description_dict[episode_id]["task_description"]
             
-            task_id = episode_id.split("_Demo")[0]
+            task_id = episode_id.split("/")[5]
             if task_id not in task_metadata.keys():
                 task_metadata[task_id] = []
             task_metadata[task_id].append(episode_id)
@@ -446,7 +446,7 @@ if __name__ == "__main__":
         save_paths.append(
             os.path.join(
                 args.llms_response_save_dir,
-                f"{episode_id}_{args.api_provider}.txt",
+                f"{episode_id.split('/')[-1][:-4]}_{args.api_provider}.txt",
             )
         )
         episode_ids.append(episode_id)
@@ -499,7 +499,10 @@ if __name__ == "__main__":
 
                 except (KeyError, AssertionError) as e:
                     print(f"{type(e)} for {episode_id}: generated steps: {len(cot_dict)}, filtered steps: {len(np.unique(list(filtered_step_mapping.values())))}")
-                    print(cot_dict[list(cot_dict.keys())[-1]]["task"])
+                    if len(cot_dict) > 0:
+                        print(cot_dict[list(cot_dict.keys())[-1]]["task"])
+                    else:
+                        print("No generated steps.")
                     left_set = set(filtered_step_mapping.values()) - set(cot_dict.keys())
                     for i in left_set:
                         print(f"Left step: {i}, mapping step: {list(filtered_step_mapping.keys())[list(filtered_step_mapping.values()).index(i)]}")

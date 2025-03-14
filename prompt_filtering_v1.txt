@@ -1,0 +1,56 @@
+The robot is operating in the following environment: **{scene_description}**
+
+The goal of the robot is to complete the following task: **{task_instruction}**
+
+### **Your Objectives**
+The provided reasoning responses in **{reasoning_prompt}** contain inconsistencies in how the task, plan, and reasoning elements are described. Your goal is to generate a **consistent** version by enforcing the following constraints:
+
+---
+
+## **1. Define a Fixed Task and Plan**
+From the given **task instruction** and **inconsistent reasoning**, extract and define a **consistent** version of:
+- **`<task>`**: A fixed and uniform description of the task that remains unchanged across all steps. Use this one for all steps: **{fixed_task}**
+- **`<plan>`**: A structured, ordered list of high-level steps that the robot follows to complete the task. Use this one for all steps: **{fixed_plan}**
+
+**Consistency Rules:**
+- **`<task>` must be identical** at every step. Use this one for all steps: **{fixed_task}**
+- **`<plan>` must remain fixed** and include all necessary subgoals to complete the task. Use this one for all steps: **{fixed_plan}**
+- **`<subtask>` must always be selected from `<plan>`**—no deviations.
+
+---
+
+## **2. Generate a Step-by-Step Reasoning Dictionary**
+The reasoning for each step should be provided as a single string and must follow the template below. Wrap the entire set of step reasonings in a Python dictionary. The keys of this dictionary must match the step keys from the original reasoning prompt, and there must be a one-to-one correspondence (one reasoning entry per step).
+
+<step_id>: "<reasoning>"
+
+Where `<reasoning>` follows this strict format:
+
+1. **`<task></task>`**: Use this one for all steps: **{fixed_task}**
+2. **`<plan></plan>`**: Use this one for all steps: **{fixed_plan}**
+3. **`<subtask></subtask>`**: Select a subtask **exclusively from `<plan>`**.
+4. **`<subtask_reason></subtask_reason>`**: Justify the selection of the subtask in a **consistent manner** across all steps.
+5. **`<move></move>`**: Describe the primitive movement at this step.
+6. **`<move_reason></move_reason>`**: Provide a justification for the movement, using **uniform phrasing** throughout all steps.
+
+**Additional Consistency Requirements:**
+- **Ensure `<task>` and `<plan>` remain constant** across all steps.
+- **Use standardized language in `<move_reason>`**—avoid variations in verbs and phrasing.
+- **Maintain logical coherence between steps**—each reasoning should naturally follow from the previous steps.
+- **Ensure the number of steps remain the same** as that of the original reasoning prompt. Do not omit some steps where `<move>` is stop.
+
+---
+
+## **Summary of Required Output**
+1. **Consistent Task Definition**
+   - A **fixed** `<task>` description.
+   - A **fixed, ordered** `<plan>`.
+
+2. **Step-by-Step Reasoning Dictionary**
+   - A Python dictionary formatted within triple backticks (` ```python `).
+   - Each step’s reasoning must strictly follow the **fixed** `<task>` and `<plan>`.
+   - No inconsistencies, contradictions, or redundant variations.
+   - The same number of steps as that of the original reasoning prompt. Do not omit some steps where `<move>` is stop.
+
+3. **FINISHED Label**
+   - Write `"FINISHED"` on a new line at the end of the response.

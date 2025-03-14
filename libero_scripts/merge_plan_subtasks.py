@@ -15,19 +15,20 @@ if __name__ == "__main__":
     parser.add_argument("--data_dir", type=str, default="/data/lzx/embodied-CoT/scripts/generate_embodied_data/new_reasonings")
     args = parser.parse_args()
 
-    bboxes_file_path = os.path.join(args.data_dir, args.libero_task_suite+"_w_mask", f"{args.libero_task_suite}_bboxes.json")
+    bboxes_file_path = os.path.join(args.data_dir, args.libero_task_suite+"_w_mask", "cot", f"{args.libero_task_suite}_bboxes.json")
     with open(bboxes_file_path, "r") as f:
         bboxes = json.load(f)
 
-    gripper_positions_file_path = os.path.join(args.data_dir, args.libero_task_suite+"_w_mask", f"{args.libero_task_suite}_no_noops_gripper_pos.json")
+    gripper_positions_file_path = os.path.join(args.data_dir, args.libero_task_suite+"_w_mask", "cot", f"{args.libero_task_suite}_no_noops_gripper_pos.json")
     with open(gripper_positions_file_path, "r") as f:
         gripper_positions = json.load(f)
 
-    primitives_file_path = os.path.join(args.data_dir, args.libero_task_suite+"_w_mask", f"{args.libero_task_suite}_primitives.json")
+    primitives_file_path = os.path.join(args.data_dir, args.libero_task_suite+"_w_mask", "cot", f"{args.libero_task_suite}_primitives.json")
     with open(primitives_file_path, "r") as f:
         primitives = json.load(f)
 
-    reasonings_file_path = os.path.join(args.data_dir, args.libero_task_suite+"_w_mask", f"{args.libero_task_suite}_plan_subtasks.json")
+    # reasonings_file_path = os.path.join(args.data_dir, args.libero_task_suite+"_w_mask", f"{args.libero_task_suite}_plan_subtasks.json")
+    reasonings_file_path = os.path.join(args.data_dir, args.libero_task_suite+"_w_mask", "cot", "filtered_reasoning_h10.json")
     with open(reasonings_file_path, "r") as f:
         reasonings = json.load(f)
 
