@@ -40,8 +40,9 @@ if __name__ == "__main__":
         if file_path not in primitives:
             print(f"File path {file_path} not found in primitives")
             continue
-        bbox = bboxes[file_path]
-        gripper_position = gripper_positions[file_path]
+        # bbox and gripper_position include the last state, so we need to remove it
+        bbox = bboxes[file_path][:-1]
+        gripper_position = gripper_positions[file_path][:-1]
         primitive = primitives[file_path]
 
         try:
@@ -54,7 +55,7 @@ if __name__ == "__main__":
             {
                 "bboxes": bbox,
                 "gripper_position": gripper_position,
-                "move_primitive": primitives
+                "move_primitive": primitive
             }
         )
 
