@@ -59,7 +59,7 @@ if __name__ == "__main__":
             {
                 "bboxes": bbox,
                 "gripper_position": gripper_position,
-                "move_primitive": primitives
+                "move_primitive": primitive
             }
         )
 

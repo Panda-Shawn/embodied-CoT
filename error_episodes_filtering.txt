@@ -2436,3 +2436,5 @@ libero_90_Task_20_Demo_21
 libero_90_Task_0_Demo_43
 libero_90_Task_88_Demo_23
 libero_90_Task_22_Demo_29
+libero_90_Task_50_Demo_3
+libero_90_Task_50_Demo_3
