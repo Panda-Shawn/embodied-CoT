@@ -151,6 +151,7 @@ data/
 scripts/generate_embodied_data/vis*
 scripts/generate_embodied_data/gripper_positions/vis*
 libero_scripts/vis*
+libero_scripts/runs
 furniture_bench_scripts/vis*
 colosseum_scripts/vis*
 vis*

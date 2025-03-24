@@ -30,7 +30,8 @@ if __name__ == "__main__":
     with open(primitives_file_path, "r") as f:
         primitives = json.load(f)
 
-    reasonings_file_path = os.path.join(args.dataset_dir, "cot", f"{args.furniture}_plan_subtasks.json")
+    # reasonings_file_path = os.path.join(args.dataset_dir, "cot", f"{args.furniture}_plan_subtasks.json")
+    reasonings_file_path = os.path.join(args.dataset_dir, "cot", f"filtered_reasoning_h10.json")
     with open(reasonings_file_path, "r") as f:
         reasonings = json.load(f)
 

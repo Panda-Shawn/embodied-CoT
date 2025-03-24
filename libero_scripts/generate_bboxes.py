@@ -33,8 +33,6 @@ def label_single_task(data_path, debug=False):
     for episode in tqdm(origin_data.keys()):
         episode_data = origin_data[episode]
         episode_id = episode_data["episode_id"][()].decode("utf-8")
-        if episode_id != "libero_goal_Task_1_Demo_10":
-            continue
         instance_names = episode_data["instance_names"][()]
         instance_names = decode_instance_names(instance_names)
         instance_id_to_names = {}
@@ -61,6 +59,9 @@ def label_single_task(data_path, debug=False):
             mask = mask.rotate(180)
             mask = np.array(mask)
 
+            # image = image.resize((224,224))
+            # scale = 224 / 256
+
             bboxes = mask_to_bboxes(mask, instance_id_to_names)
             if debug:
                 fig, ax = plt.subplots(1, figsize=(8, 8))
@@ -69,6 +70,7 @@ def label_single_task(data_path, debug=False):
 
                 # Draw bounding boxes
                 for text, bbox in bboxes:
+                    # bbox = [x * scale for x in bbox]
                     show_box(bbox, ax, text, "red")
                 
                 output_path = f"vis_bboxes/output_{episode_id}_step_{i}.png"
@@ -93,6 +95,8 @@ if __name__ == "__main__":
         data_path = os.path.join(args.libero_dataset_dir, data_files[i])
         results_json = label_single_task(data_path, args.debug)
         results.update(results_json)
+        if args.debug:
+            break
 
     if args.results_path is None:
         bbox_dir = os.path.join(args.libero_dataset_dir, "cot")

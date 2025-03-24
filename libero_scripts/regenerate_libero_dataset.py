@@ -39,7 +39,7 @@ from libero_utils import (
     get_libero_env,
 )
 
-
+import mediapy
 # IMAGE_RESOLUTION = 256
 
 
@@ -101,6 +101,8 @@ def main(args):
     num_noops = 0
 
     for task_id in tqdm.tqdm(range(num_tasks_in_suite)):
+        if task_id != 51:
+            continue
         # Get task in suite
         task = task_suite.get_task(task_id)
         env, task_description = get_libero_env(
@@ -256,6 +258,8 @@ def main(args):
 
                 num_success += 1
 
+            agentview_images_np = np.array(agentview_images)[:,::-1,::-1]
+            mediapy.write_video(f"runs/{args.libero_task_suite}_Task_{task_id}_Demo_{i}.mp4", agentview_images_np, fps=10)
             num_replays += 1
 
             # Record success/false and initial environment state in metainfo dict
