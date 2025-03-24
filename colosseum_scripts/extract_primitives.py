@@ -7,6 +7,7 @@ import glob
 from tqdm import tqdm
 import pickle
 from scipy.spatial.transform import Rotation
+import tensorflow_datasets as tfds
 
 
 def describe_move(move_vec):
@@ -77,20 +78,23 @@ def get_move_primitives_episode(episode):
     return primitives
 
 
-def extract_single_task(data_path, action_horizon, debug: bool = False):
-    origin_data_file = open(data_path, "rb")
-    origin_data = pickle.load(origin_data_file)
+def extract_single_task(data_path, episode, action_horizon, debug: bool = False):
     results_json = {}
     print(f"Processing {data_path} ...")
 
-    episode_ee_trans = [origin_data["observations"][i]["robot_state"]["ee_pos"] for i in range(len(origin_data["observations"]))]
-    episode_ee_rots = [Rotation.from_quat(origin_data["observations"][i]["robot_state"]["ee_quat"]).as_euler("xyz") for i in range(len(origin_data["observations"]))]
-    episode_action = np.array(origin_data["actions"])
+    episode_ee_trans = []
+    episode_ee_rots = []
+    episode_action = []
+    for step in episode["steps"]:
+        episode_ee_trans.append(step["observation"]["gripper_pose"].numpy()[:3])
+        episode_ee_rots.append(Rotation.from_quat(step["observation"]["gripper_pose"].numpy()[3:]).as_euler("xyz"))
+        episode_action.append(step["action"].numpy())
     # [OpenVLA] The dataloader flips the sign of the gripper action to align with other datasets
     # (0 = close, 1 = open), so flip it back (-1 = open, +1 = close) before executing the action
+    episode_action = np.array(episode_action) * -2 + 1
     gripper_action = episode_action[:, -1:]
 
-    episode_states = np.concatenate([episode_ee_trans[:-1], episode_ee_rots[:-1], gripper_action], axis=-1)
+    episode_states = np.concatenate([episode_ee_trans[:-1], episode_ee_rots[:-1], gripper_action[:-1]], axis=-1)
 
     move_trajs = [
         episode_states[i : i + action_horizon]
@@ -103,7 +107,6 @@ def extract_single_task(data_path, action_horizon, debug: bool = False):
     if debug:
         pass
 
-    origin_data_file.close()
     return results_json
 
 
@@ -115,12 +118,16 @@ if __name__ == "__main__":
     parser.add_argument("--results_path", type=str, default=None)
     args = parser.parse_args()
 
-    # Label data files one by one
-    data_files = glob.glob(os.path.join(args.dataset_dir, "*/*.pkl"))
+    ds = tfds.load(
+        "colosseum_dataset",
+        data_dir=args.dataset_dir,
+        split=f"train[{0}%:{100}%]",
+    )
+
     results = {}
-    for i in tqdm(range(len(data_files))):
-        data_path = os.path.join(args.dataset_dir, data_files[i])
-        results_json = extract_single_task(data_path, args.action_horizon, args.debug)
+    for episode in tqdm(ds):
+        data_path = episode["episode_metadata"]["file_path"].numpy().decode()
+        results_json = extract_single_task(data_path, episode, args.action_horizon, args.debug)
         results.update(results_json)
 
     if args.results_path is None:

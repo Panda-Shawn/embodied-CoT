@@ -9,9 +9,9 @@ python libero_scripts/label_pipeline.py \
 --batch_size 1 \
 --api_provider gemini \
 --enable_gripper_positions \
-# --enable_plan_subtasks \
-# --enable_bboxes \
-# --enable_scene_desc \
-# --enable_primitives \
-# --enable_merge \
-# --results_dir /data/lx/libero_dataset/openvla_modified/cot \
+--enable_plan_subtasks \
+--enable_bboxes \
+--enable_scene_desc \
+--enable_primitives \
+--enable_merge \
+--results_dir /data/lx/libero_dataset/openvla_modified/cot \

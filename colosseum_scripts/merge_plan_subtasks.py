@@ -11,26 +11,22 @@ import os
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--furniture", type=str, default=None)
     parser.add_argument("--dataset_dir", type=str, default="/data2/lzixuan/furniture-bench/scripted_sim_demo/cabinet")
     args = parser.parse_args()
 
-    if args.furniture == None:
-        args.furniture = args.dataset_dir.split("/")[-1]
-
-    bboxes_file_path = os.path.join(args.dataset_dir, "cot", f"{args.furniture}_bboxes.json")
+    bboxes_file_path = os.path.join(args.dataset_dir, "cot", f"bboxes.json")
     with open(bboxes_file_path, "r") as f:
         bboxes = json.load(f)
 
-    gripper_positions_file_path = os.path.join(args.dataset_dir, "cot", f"{args.furniture}_gripper_pos.json")
+    gripper_positions_file_path = os.path.join(args.dataset_dir, "cot", f"gripper_positions.json")
     with open(gripper_positions_file_path, "r") as f:
         gripper_positions = json.load(f)
 
-    primitives_file_path = os.path.join(args.dataset_dir, "cot", f"{args.furniture}_primitives.json")
+    primitives_file_path = os.path.join(args.dataset_dir, "cot", f"primitives_h10.json")
     with open(primitives_file_path, "r") as f:
         primitives = json.load(f)
 
-    reasonings_file_path = os.path.join(args.dataset_dir, "cot", f"{args.furniture}_plan_subtasks.json")
+    reasonings_file_path = os.path.join(args.dataset_dir, "cot", f"filtered_reasoning_h10.json")
     with open(reasonings_file_path, "r") as f:
         reasonings = json.load(f)
 
@@ -62,7 +58,7 @@ if __name__ == "__main__":
             }
         )
 
-    target_file_path = os.path.join(args.dataset_dir, "cot", f"reasoning_{args.furniture}.json")
+    target_file_path = os.path.join(args.dataset_dir, "cot", f"reasoning.json")
 
     with open(target_file_path, "w") as f:
         json.dump(reasonings, f)

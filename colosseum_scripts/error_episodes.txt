@@ -1009,3 +1009,5 @@ libero_spatial_Task_4_Demo_48
 /data2/lzixuan/furniture-bench/scripted_sim_demo/round_table/2025-02-22-12:08:53/2025-02-22-12:08:53.pkl
 /data2/lzixuan/furniture-bench/scripted_sim_demo/round_table/2025-02-22-12:08:53/2025-02-22-12:08:53.pkl
 /data2/lzixuan/furniture-bench/scripted_sim_demo/round_table/2025-02-22-17:36:22/2025-02-22-17:36:22.pkl
+/home/nus/data/colosseum_dataset/hockey_5/episodes/episode16
+/home/nus/data/colosseum_dataset/scoop_with_spatula_12/episodes/episode28

@@ -13,9 +13,11 @@ from utils import (
     draw_bounding_boxes,
     decode_instance_names,
     mask_to_bboxes,
+    show_box
 )
 
 from libero_utils import process_single_image
+import matplotlib.pyplot as plt
 
 warnings.filterwarnings("ignore")
 
@@ -31,6 +33,8 @@ def label_single_task(data_path, debug=False):
     for episode in tqdm(origin_data.keys()):
         episode_data = origin_data[episode]
         episode_id = episode_data["episode_id"][()].decode("utf-8")
+        if episode_id != "libero_goal_Task_1_Demo_10":
+            continue
         instance_names = episode_data["instance_names"][()]
         instance_names = decode_instance_names(instance_names)
         instance_id_to_names = {}
@@ -55,16 +59,21 @@ def label_single_task(data_path, debug=False):
             )
             mask = mask.resize(image_dims)
             mask = mask.rotate(180)
-
-            if debug:
-                img_dir = f"vis_bboxes/img_episode_{episode_id}"
-                os.makedirs(img_dir, exist_ok=True)
-                image.save(os.path.join(img_dir, f"raw_image_step_{i}.png"))
+            mask = np.array(mask)
 
             bboxes = mask_to_bboxes(mask, instance_id_to_names)
             if debug:
-                bbox_dir = f"vis_bboxes/bbox_episode_{episode_id}"
-                draw_bounding_boxes(image, bboxes, os.path.join(bbox_dir, f"bboxes_{episode_id}_{i}.png"))
+                fig, ax = plt.subplots(1, figsize=(8, 8))
+                ax.imshow(image)
+                ax.axis("off")
+
+                # Draw bounding boxes
+                for text, bbox in bboxes:
+                    show_box(bbox, ax, text, "red")
+                
+                output_path = f"vis_bboxes/output_{episode_id}_step_{i}.png"
+                plt.savefig(output_path, bbox_inches='tight', pad_inches=0)
+                plt.close()
             bboxes_list.append(bboxes)
         bbox_results_json[episode_id] = bboxes_list
     origin_data_file.close()

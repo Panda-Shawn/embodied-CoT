@@ -105,7 +105,7 @@ def process_single_prompt(prompt_data):
             response_text = response.choices[0].message.content
         else:
             raise ValueError(f"Unknown API provider: {api_provider}")
-        print(save_path)
+
         with open(save_path, "w") as f:
             f.write(response_text)
         return response_text
@@ -165,6 +165,14 @@ def find_task_occurrences(input_string, tags):
     return matches
 
 
+def extract_task_plan(text):
+    pattern = r"<task>(.*?)<\/task>.*?<plan>(.*?)<\/plan>"
+    match = re.search(pattern, text, re.DOTALL)
+    if match:
+        return {"task": match.group(1).strip(), "plan": match.group(2).strip()}
+    return {}
+
+
 def process_response(
     response_text,
     tags=("task", "plan", "subtask", "subtask_reason", "move", "move_reason"),
@@ -182,6 +190,18 @@ def process_response(
     return trajectory
 
 
+def process_task_plan_response(
+    response_text,
+):
+    """Process the API response text and extract the reasoning dictionary"""
+    if response_text is None:
+        return dict()
+
+    task_plan = extract_task_plan(response_text)
+
+    return task_plan
+
+
 # proxy = "http://127.0.0.1:6789"
 # os.environ["http_proxy"] = proxy
 # os.environ["https_proxy"] = proxy
@@ -195,6 +215,9 @@ if __name__ == "__main__":
     parser.add_argument("--dataset_dir", type=str)
     parser.add_argument("--scene_desc_path", type=str, default=None)
     parser.add_argument("--primitives_path", type=str, default=None)
+    parser.add_argument("--plan_subtasks_path", type=str, default=None)
+    parser.add_argument("--task_metadata_path", type=str, default=None)
+    parser.add_argument("--task_plan_path", type=str, default=None)
     parser.add_argument("--llms_response_save_dir", type=str, default=None)
     parser.add_argument("--results_path", type=str, default=None)
     args = parser.parse_args()
@@ -203,13 +226,24 @@ if __name__ == "__main__":
     if args.llms_response_save_dir is None:
         os.makedirs(cot_dir, exist_ok=True)
         args.llms_response_save_dir = os.path.join(
-            cot_dir, f"raw_api_responses_h{args.action_horizon}"
+            cot_dir, f"raw_api_responses_h{args.action_horizon}_filtering"
         )
+
+    os.makedirs(cot_dir, exist_ok=True)
+    task_plan_save_dir = os.path.join(
+        cot_dir, f"raw_api_responses_h{args.action_horizon}_task_plan"
+    )
 
     if args.primitives_path is None:
         os.makedirs(cot_dir, exist_ok=True)
         args.primitives_path = os.path.join(
             cot_dir, f"primitives_h{args.action_horizon}.json"
+        )
+
+    if args.plan_subtasks_path is None:
+        os.makedirs(cot_dir, exist_ok=True)
+        args.plan_subtasks_path = os.path.join(
+            cot_dir, f"plan_subtasks_h{args.action_horizon}.json"
         )
 
     if args.scene_desc_path is None:
@@ -219,10 +253,14 @@ if __name__ == "__main__":
     with open(args.primitives_path, "r") as f:
         primitives_dict = json.load(f)
 
+    with open(args.plan_subtasks_path, "r") as f:
+        plan_subtasks_dict = json.load(f)
+
     with open(args.scene_desc_path, "r") as f:
         scene_description_dict = json.load(f)
 
     os.makedirs(args.llms_response_save_dir, exist_ok=True)
+    os.makedirs(task_plan_save_dir, exist_ok=True)
     print("Using API provider:", args.api_provider)
 
     # Configure API clients based on provider
@@ -239,29 +277,142 @@ if __name__ == "__main__":
 
     # Read prompt template
     code_root_dir = Path(__file__).resolve().parents[1]
-    with open(f"{code_root_dir}/prompt.txt", "r") as f:
+    with open(f"{code_root_dir}/prompt_filtering.txt", "r") as f:
         template_prompt = f.read()
 
-    # Collect prompts in batches
-    prompts = []
-    save_paths = []
-    filtered_step_mappings = {}
-    episode_ids = []
+    with open(f"{code_root_dir}/prompt_task_plan.txt", "r") as f:
+        task_plan_template_prompt = f.read()
+
+    # # Collect prompts in batches
+    # prompts = []
+    # save_paths = []
+    # filtered_step_mappings = {}
+    # episode_ids = []
 
     if args.results_path is None:
         os.makedirs(cot_dir, exist_ok=True)
         args.results_path = os.path.join(
-            cot_dir, f"chain_of_thought_h{args.action_horizon}.json"
+            cot_dir, f"filtered_reasoning_h{args.action_horizon}.json"
         )
 
     if os.path.exists(args.results_path):
         with open(args.results_path, "r") as f:
             results = json.load(f)
-        keys = list(set(scene_description_dict.keys()) - set(results.keys()))
+        keys = list(set(primitives_dict.keys()) - set(results.keys()))
     else:
         results = {}
-        keys = list(scene_description_dict.keys())
+        keys = list(primitives_dict.keys())
 
+    if args.task_metadata_path is None:
+        os.makedirs(cot_dir, exist_ok=True)
+        args.task_metadata_path = os.path.join(
+            cot_dir, f"task_metadata.json"
+        )
+
+    if os.path.exists(args.task_metadata_path):
+        with open(args.task_metadata_path, "r") as f:
+            task_metadata = json.load(f)
+    else:
+        task_metadata = {}
+        for episode_id in primitives_dict.keys():
+            task_id = episode_id.split("colosseum_dataset/")[-1].split("_")[:-1]
+            task_id = "_".join(task_id)
+            # import pdb; pdb.set_trace()
+            if task_id not in task_metadata.keys():
+                task_metadata[task_id] = []
+            task_metadata[task_id].append(episode_id)
+
+    if args.task_plan_path is None:
+        os.makedirs(cot_dir, exist_ok=True)
+        args.task_plan_path = os.path.join(
+            cot_dir, f"task_plan.json"
+        )
+
+    if os.path.exists(args.task_plan_path):
+        with open(args.task_plan_path, "r") as f:
+            task_plans = json.load(f)
+        task_plan_keys = list(set(plan_subtasks_dict.keys()) - set(task_plans.keys()))
+    else:
+        task_plans = {}
+        task_plan_keys = list(plan_subtasks_dict.keys())
+
+    for episode_id in task_plan_keys:
+        plan_subtasks = plan_subtasks_dict[episode_id]["0"]["reasoning"]
+        scene_description = scene_description_dict[episode_id]["caption"]
+        task_description = scene_description_dict[episode_id]["task_description"]
+        task_plans[episode_id] = {"task": plan_subtasks["0"]["task"], "plan": plan_subtasks["0"]["plan"]}
+
+    task_plan_prompts = []
+    save_paths = []
+    task_ids = []
+    for task_id in task_metadata.keys():
+        scene_prompt = scene_description_dict[task_metadata[task_id][0]]["caption"]
+        task_prompt = scene_description_dict[task_metadata[task_id][0]]["task_description"]
+        task_plan_prompt = "task_plan = {\n"
+        for episode_id in task_metadata[task_id]:
+            if episode_id not in task_plans.keys():
+                # print(f"Task plan not found for {episode_id}")
+                continue
+            task = task_plans[episode_id]["task"]
+            plan = task_plans[episode_id]["plan"]
+            task_plan_prompt += f'    {episode_id}: "<task>{task}</task><plan>{plan}</plan>",\n'
+        task_plan_prompt += "}"
+
+        prompt = task_plan_template_prompt.format(
+            scene_description=scene_prompt,
+            task_plan_prompt=task_plan_prompt,
+            task_instruction=task_prompt,
+        )
+        save_paths.append(
+            os.path.join(
+                task_plan_save_dir,
+                f"{task_id}_{args.api_provider}.txt",
+            )
+        )
+
+        task_plan_prompts.append(prompt)
+        task_ids.append(task_id)
+    
+    # print(task_ids)
+    # Process Batches with API of LLMs
+    print(f"Processing {len(task_plan_prompts)} task&plan prompts in batches of {args.batch_size}...")
+    with tqdm(
+        total=len(task_plan_prompts), desc=f"Processing batches (h={args.action_horizon})"
+    ) as pbar:
+        for i in range(0, len(task_plan_prompts), args.batch_size):
+            batch_prompts = task_plan_prompts[i : i + args.batch_size]
+            batch_saves = save_paths[i : i + args.batch_size]
+            batch_task_ids = task_ids[i : i + args.batch_size]  
+
+            responses = batch_get_responses(
+                batch_prompts,
+                batch_saves,
+                args.batch_size,
+                load_saved=True,#not args.force_regenerate,
+                api_provider=args.api_provider,
+            )
+            for task_id, response_text in zip(batch_task_ids, responses):
+                task_plan_dict_each_episode = process_task_plan_response(response_text)
+                for episode_id in task_metadata[task_id]:
+                    # print(task_id, episode_id, task_plan_dict_each_episode)
+                    task_plans.update({episode_id: task_plan_dict_each_episode})
+        
+            pbar.update(len(batch_prompts))
+    
+    # import pdb; pdb.set_trace()
+
+    with open(args.task_metadata_path, "w") as f:
+        json.dump(task_metadata, f)
+    
+    with open(args.task_plan_path, "w") as f:
+        json.dump(task_plans, f)
+    # exit()
+    print("Processing task&plan prompts complete!")
+    prompts = []
+    save_paths = []
+    filtered_step_mappings = {}
+    episode_ids = []
+    
     for episode_id in keys:
         primitives = primitives_dict[episode_id]
         scene_description = scene_description_dict[episode_id]["caption"]
@@ -283,10 +434,13 @@ if __name__ == "__main__":
             primitives_prompt += f'    {step}: "{primitive}",\n'
         primitives_prompt += "}"
 
+        fixed_task = task_plans[episode_id]["task"]
+        fixed_plan = task_plans[episode_id]["plan"]
         prompt = template_prompt.format(
             scene_description=scene_description,
             primitives_prompt=primitives_prompt,
-            task_instruction=task_description,
+            task=fixed_task,
+            plan=fixed_plan,
         )
 
         prompts.append(prompt)
@@ -304,8 +458,6 @@ if __name__ == "__main__":
         total=len(prompts), desc=f"Processing batches (h={args.action_horizon})"
     ) as pbar:
         for i in range(0, len(prompts), args.batch_size):
-            if i == 2000:
-                break
             batch_prompts = prompts[i : i + args.batch_size]
             batch_saves = save_paths[i : i + args.batch_size]
             batch_episode_ids = episode_ids[i : i + args.batch_size]
@@ -317,8 +469,6 @@ if __name__ == "__main__":
                 load_saved=not args.force_regenerate,
                 api_provider=args.api_provider,
             )
-            # import pdb; pdb.set_trace()
-
 
             # Process responses
             for response_text, episode_id in zip(responses, batch_episode_ids):
@@ -326,9 +476,18 @@ if __name__ == "__main__":
                 try:
                     # Map back to original steps
                     filtered_step_mapping = filtered_step_mappings[episode_id]
+                    # if len(cot_dict) != len(np.unique(list(filtered_step_mapping.values()))):
+                    #     # We complete the cot_dict with the last step if it is a stop task.
+                    #     num_cot_steps = len(cot_dict)
+                    #     num_filtered_steps = len(np.unique(list(filtered_step_mapping.values())))
+                    #     end_task = cot_dict[num_cot_steps-1]["task"]
+                    #     end_move = cot_dict[num_cot_steps-1]["move"]
+                    #     if end_task == "Stop." or end_move == "stop":
+                    #         for i in range(num_filtered_steps-num_cot_steps):
+                    #             cot_dict[num_cot_steps+i] = cot_dict[num_cot_steps-1]
                     assert len(cot_dict) == len(
                         np.unique(list(filtered_step_mapping.values()))
-                    ), f"Length mismatch for {episode_id}, {len(cot_dict)} vs {len(np.unique(list(filtered_step_mapping.values())))}"
+                    )
                     original_cot_dict = {}
                     for ori_step, filtered_step in filtered_step_mapping.items():
                         original_cot_dict[ori_step] = cot_dict[filtered_step]
@@ -340,8 +499,15 @@ if __name__ == "__main__":
                     }
 
                 except (KeyError, AssertionError) as e:
-                    print(f"{type(e)} for {episode_id}")
-                    with open("error_episodes.txt", "a") as f:
+                    print(f"{type(e)} for {episode_id}: generated steps: {len(cot_dict)}, filtered steps: {len(np.unique(list(filtered_step_mapping.values())))}")
+                    if len(cot_dict) > 0:
+                        print(cot_dict[list(cot_dict.keys())[-1]]["task"])
+                    else:
+                        print("No generated steps.")
+                    left_set = set(filtered_step_mapping.values()) - set(cot_dict.keys())
+                    for i in left_set:
+                        print(f"Left step: {i}, mapping step: {list(filtered_step_mapping.keys())[list(filtered_step_mapping.values()).index(i)]}")
+                    with open("error_episodes_filtering.txt", "a") as f:
                         f.write(f"{episode_id}\n")
 
             pbar.update(len(batch_prompts))

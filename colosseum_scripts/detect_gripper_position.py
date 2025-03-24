@@ -14,36 +14,25 @@ from utils import NumpyFloatValuesEncoder, draw_gripper_position
 import os
 from env_utils import process_single_image
 import matplotlib.pyplot as plt
-import pickle
+import tensorflow_datasets as tfds
+from scipy.spatial.transform import Rotation
 
 
 image_dims = (256, 256)
 
 
-def label_single_task(data_path, debug=False, furniture=None):
-    origin_data_file = open(data_path, "rb")
-    origin_data = pickle.load(origin_data_file)
-    if furniture is None:
-        furniture = data_path.split("/")[-3]
-    # time = data_path.split("/")[-2]
+def label_single_task(data_path, episode, debug=False):
     print(f"Processing {data_path} ...")
 
     gripper_pos_results_json = {}
     gripper_pos = []
-    step_nums = len(origin_data["actions"])
-    for i in range(step_nums):
-        image = np.array(
-            origin_data["observations"][i]["color_image2"],
-        ).astype(np.uint8)
-        gripper_positions_3d = origin_data["observations"][i]["robot_state"]["ee_pos"]
-        camera_pos = CAM_POSES[furniture]["front"]["pos"]
-        camera_quat = CAM_POSES[furniture]["front"][
-            "quat"
-        ]
-        fovy = CAM_POSES[furniture]["front"]["fovy"]
-        resolution = IMAGE_SIZE
-
-        camera_intrinsics = calculate_camera_intrinsics(fovy, resolution)
+    for i, step in enumerate(episode["steps"]):
+        image = step["observation"]["image"].numpy().astype(np.uint8)
+        gripper_positions_3d = step["observation"]["gripper_pose"].numpy()[:3]
+        camera_transform_matrix = step["camera_extrinsics"].numpy()
+        camera_pos = camera_transform_matrix[:3, 3]
+        camera_quat = Rotation.from_matrix(camera_transform_matrix[:3, :3]).as_quat()
+        camera_intrinsics = step["camera_intrinsics"].numpy()
 
         # Project tcp position in the image
         u, v = calculate_2d_position(
@@ -51,7 +40,7 @@ def label_single_task(data_path, debug=False, furniture=None):
             camera_pos,
             camera_quat,
             camera_intrinsics,
-            scalar_first=True,
+            scalar_first=False,
         )
         gripper_pos.append([int(u), int(v)])
         if debug:
@@ -79,17 +68,21 @@ def label_single_task(data_path, debug=False, furniture=None):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--furniture", type=str)
     parser.add_argument("--dataset_dir", type=str)
     parser.add_argument("--results_path", type=str, default=None)
     parser.add_argument("--debug", action="store_true")
     args = parser.parse_args()
 
-    data_files = glob.glob(os.path.join(args.dataset_dir, "*/*.pkl"))
+    ds = tfds.load(
+        "colosseum_dataset",
+        data_dir=args.dataset_dir,
+        split=f"train[{0}%:{100}%]",
+    )
+
     results = {}
-    for i in tqdm(range(len(data_files))):
-        data_path = os.path.join(args.dataset_dir, data_files[i])
-        results_json = label_single_task(data_path, args.debug, args.furniture)
+    for episode in tqdm(ds):
+        data_path = episode["episode_metadata"]["file_path"].numpy().decode()
+        results_json = label_single_task(data_path, episode, args.debug)
         results.update(results_json)
         if args.debug:
             break

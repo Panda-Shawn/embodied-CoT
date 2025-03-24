@@ -20,34 +20,30 @@ from env_utils import process_single_image, INSTANCE_ID_TO_NAMES
 
 import pickle
 import matplotlib.pyplot as plt
+import tensorflow_datasets as tfds
 
 warnings.filterwarnings("ignore")
 
 image_dims = (256, 256)
 
 
-def label_single_task(data_path, debug=False, furniture=None):
-    origin_data_file = open(data_path, "rb")
-    origin_data = pickle.load(origin_data_file)
-    if furniture is None:
-        furniture = data_path.split("/")[-3]
+def label_single_task(data_path, episode, debug=False):
     print(f"Processing {data_path} ...")
 
     bbox_results_json = {}
-
-    instance_id_to_names = INSTANCE_ID_TO_NAMES[furniture]
+    task = data_path.split("colosseum_dataset/")[1].rsplit("_", 1)[0]
+    instance_id_to_names = INSTANCE_ID_TO_NAMES[task]
     instance_names = instance_id_to_names.values()
-    instance_names = decode_instance_names(instance_names)
-    step_nums = len(origin_data["actions"])
     bboxes_list = []
-    for i in range(step_nums):
+    for i, step in enumerate(episode["steps"]):
         image = Image.fromarray(
-            origin_data["observations"][i]["color_image2"],
+            step["observation"]["image"].numpy().astype(np.uint8),
             mode="RGB",
         )
-        mask = origin_data["observations"][i]["seg_image2"]
+        mask = 256 - step["observation"]["mask"].numpy().astype(np.uint8)
 
         bboxes = mask_to_bboxes(mask, instance_id_to_names)
+        # import pdb; pdb.set_trace()
         if debug:
             # Plot the image using matplotlib
             fig, ax = plt.subplots(1, figsize=(8, 8))
@@ -64,23 +60,26 @@ def label_single_task(data_path, debug=False, furniture=None):
 
         bboxes_list.append(bboxes)
     bbox_results_json[data_path] = bboxes_list
-    origin_data_file.close()
     return bbox_results_json
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--furniture", type=str)
     parser.add_argument("--dataset_dir", type=str)
     parser.add_argument("--results_path", type=str, default=None)
     parser.add_argument("--debug", action="store_true")
     args = parser.parse_args()
 
-    data_files = glob.glob(os.path.join(args.dataset_dir, "*/*.pkl"))
+    ds = tfds.load(
+        "colosseum_dataset",
+        data_dir=args.dataset_dir,
+        split=f"train[{0}%:{100}%]",
+    )
+
     results = {}
-    for i in tqdm(range(len(data_files))):
-        data_path = os.path.join(args.dataset_dir, data_files[i])
-        results_json = label_single_task(data_path, args.debug, args.furniture)
+    for episode in tqdm(ds):
+        data_path = episode["episode_metadata"]["file_path"].numpy().decode()
+        results_json = label_single_task(data_path, episode, args.debug)
         results.update(results_json)
         if args.debug:
             break

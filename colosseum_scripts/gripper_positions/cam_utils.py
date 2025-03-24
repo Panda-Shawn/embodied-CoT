@@ -20,7 +20,7 @@ def calculate_2d_position(
     返回:
         (u, v): 夹爪在图像平面的像素坐标 (u, v)。
     """
-    gripper_pos = gripper_pos + np.array([-0.3,  0.0,  0.43])
+    gripper_pos = gripper_pos #+ np.array([-0.3,  0.0,  0.43])
     # Step 1: 将四元数转换为旋转矩阵
     R_camera = R.from_quat(camera_quat, scalar_first=scalar_first).as_matrix()
 
@@ -42,7 +42,7 @@ def calculate_2d_position(
     u = fx * x / z + cx
     v = fy * y / z + cy
     # import pdb; pdb.set_trace()
-    return 256 - u, 256 - v
+    return u, v #+ 128
 
 
 def calculate_camera_intrinsics(fovy, resolution):

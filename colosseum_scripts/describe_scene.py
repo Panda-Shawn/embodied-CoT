@@ -25,7 +25,7 @@ try:
 except FileNotFoundError:
     hf_token = None
 
-import pickle
+import tensorflow_datasets as tfds
 
 image_dims = (256, 256)
 
@@ -34,9 +34,10 @@ def create_user_prompt(lang_instruction, instance_names):
     user_prompt = (
         f"The robot task is: {lang_instruction}. "
         # "Analyze the image of a scene where a robot arm is about to perform this task on a wooden floor or table. "
-        "Analyze the image of a scene on a black table. "
-        f"There are {', '.join(instance for instance in instance_names)} in the scene. "
-        "Briefly describe the objects on the black table and their spatial relations to each other. "
+        # "Analyze the image of a scene on a black table. "
+        "Analyze the image of a scene where a robot arm is about to perform this task. "
+        # f"There are {', '.join(instance for instance in instance_names)} in the scene. "
+        "Briefly describe the objects in the image and their spatial relations to each other. "
     )
     return user_prompt
     # user_prompt = "Briefly describe the things in this scene and their spatial relations to each other."
@@ -49,26 +50,15 @@ def create_user_prompt(lang_instruction, instance_names):
     # return user_prompt
 
 
-def label_single_task(vlm, data_path, furniture=None):
-    origin_data_file = open(data_path, "rb")
-    origin_data = pickle.load(origin_data_file)
-    if furniture is None:
-        furniture = data_path.split("/")[-3]
-
+def label_single_task(vlm, data_path, episode):
     results_json = {}
+    for step in episode["steps"]:
+        lang_instruction = step["language_instruction"].numpy().decode()
+        image = Image.fromarray(step["observation"]["image"].numpy())
+        # image.save(f"{data_path[1:].replace('/','_')}.png")
+        break
 
-    task_description = LANGUALGE_INSTRUCTIONS[furniture]
-    image = Image.fromarray(
-        np.array(
-            process_single_image(
-                origin_data["observations"][0]["color_image2"], image_dims
-            )
-        ),
-        mode="RGB",
-    )
-    instance_names = INSTANCE_ID_TO_NAMES[furniture].values()
-    instances = decode_instance_names(instance_names)
-    user_prompt = create_user_prompt(task_description, instances)
+    user_prompt = create_user_prompt(lang_instruction, None)
     prompt_builder = vlm.get_prompt_builder()
     prompt_builder.add_turn(role="human", message=user_prompt)
     prompt_text = prompt_builder.get_prompt()
@@ -85,11 +75,9 @@ def label_single_task(vlm, data_path, furniture=None):
 
     results_json[data_path] = {
         "caption": caption,
-        "task_description": task_description,
+        "task_description": lang_instruction,
     }
     # break
-
-    origin_data_file.close()
 
     return results_json
 
@@ -98,7 +86,6 @@ if __name__ == "__main__":
     import sys
     print("Command-line arguments:", sys.argv)
     parser = argparse.ArgumentParser()
-    parser.add_argument("--furniture", type=str)
     parser.add_argument("--dataset_dir", type=str)
     parser.add_argument("--vlm_model_path", type=str)
     parser.add_argument("--results_path", type=str, default=None)
@@ -113,12 +100,19 @@ if __name__ == "__main__":
     vlm = load(args.vlm_model_path, hf_token=hf_token) # prism-dinosiglip+7b
     vlm = vlm.to(device, dtype=torch.bfloat16)
 
-    # Label data files one by one
-    data_files = glob.glob(os.path.join(args.dataset_dir, "*/*.pkl"))
+    ds = tfds.load(
+        "colosseum_dataset",
+        data_dir=args.dataset_dir,
+        split=f"train[{0}%:{100}%]",
+    )
+
+    # import pdb; pdb.set_trace()
     results = {}
-    for i in tqdm(range(len(data_files))):
-        data_path = os.path.join(args.dataset_dir, data_files[i])
-        results_json = label_single_task(vlm, data_path, args.furniture)
+    for episode in tqdm(ds):
+        file_path = episode["episode_metadata"]["file_path"].numpy().decode()
+        # print("file_path:", file_path)
+
+        results_json = label_single_task(vlm, file_path, episode)
         results.update(results_json)
 
     if args.results_path is None:

@@ -54,6 +54,7 @@ def post_process_caption(caption, lang_instruction):
 def split_instance_masks(instance_mask, instance_id_to_names):
     instance_ids = instance_id_to_names.keys()
     binary_masks = []
+    # import pdb; pdb.set_trace()
     for instance_id in instance_ids:
         binary_mask = (instance_mask == instance_id).astype(np.uint8)
         binary_masks.append(binary_mask)

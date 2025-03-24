@@ -4,6 +4,16 @@ import numpy as np
 from PIL import ImageDraw, ImageFont
 import re
 import cv2 as cv
+import matplotlib
+
+
+def show_box(box, ax, text, color):
+    x0, y0 = box[0], box[1]
+    w, h = box[2] - box[0], box[3] - box[1]
+    ax.add_patch(
+        matplotlib.patches.FancyBboxPatch((x0, y0), w, h, edgecolor=color, facecolor=(0, 0, 0, 0), lw=2, label="hehe")
+    )
+    ax.text(x0, y0 + 10, f"{text}", color="white")
 
 
 class NumpyFloatValuesEncoder(json.JSONEncoder):
