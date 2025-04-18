@@ -23,7 +23,8 @@ if __name__ == "__main__":
     parser.add_argument("--reasoning_dir", type=str, default="/data/lzx/embodied-CoT/scripts/generate_embodied_data/new_reasonings/final_reasonings")
     args = parser.parse_args()
 
-    reasoning_file_path = os.path.join(args.reasoning_dir, f"reasoning_{args.libero_task_suite}.json")
+    # reasoning_file_path = os.path.join(args.reasoning_dir, f"reasoning_{args.libero_task_suite}.json")
+    reasoning_file_path = args.reasoning_dir
     with open(reasoning_file_path, "r") as f:
         reasonings = json.load(f)
 
@@ -36,8 +37,8 @@ if __name__ == "__main__":
         episode_id = episode["episode_metadata"]["episode_id"].numpy().decode()
         file_path = episode["episode_metadata"]["file_path"].numpy().decode()
         print(f"starting ep: {episode_id}, {file_path}")
-        # if episode_id != 1:
-        #     continue
+        if file_path != "libero_goal_Task_1_Demo_10":
+            continue
 
         for step_idx, step in enumerate(episode["steps"]):
             # Load the image
