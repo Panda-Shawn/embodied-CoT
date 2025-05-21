@@ -54,7 +54,7 @@ def label_single_task(vlm, data_path, episode):
     results_json = {}
     for step in episode["steps"]:
         lang_instruction = step["language_instruction"].numpy().decode()
-        image = Image.fromarray(step["observation"]["image"].numpy())
+        image = Image.fromarray(step["observation"]["front_rgb"].numpy())
         # image.save(f"{data_path[1:].replace('/','_')}.png")
         break
 

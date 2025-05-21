@@ -37,10 +37,10 @@ def label_single_task(data_path, episode, debug=False):
     bboxes_list = []
     for i, step in enumerate(episode["steps"]):
         image = Image.fromarray(
-            step["observation"]["image"].numpy().astype(np.uint8),
+            step["observation"]["front_rgb"].numpy().astype(np.uint8),
             mode="RGB",
         )
-        mask = 256 - step["observation"]["mask"].numpy().astype(np.uint8)
+        mask = 256 - step["observation"]["front_mask"].numpy().astype(np.uint8)
 
         bboxes = mask_to_bboxes(mask, instance_id_to_names)
         # import pdb; pdb.set_trace()

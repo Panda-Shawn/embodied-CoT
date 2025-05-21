@@ -27,12 +27,12 @@ def label_single_task(data_path, episode, debug=False):
     gripper_pos_results_json = {}
     gripper_pos = []
     for i, step in enumerate(episode["steps"]):
-        image = step["observation"]["image"].numpy().astype(np.uint8)
+        image = step["observation"]["front_rgb"].numpy().astype(np.uint8)
         gripper_positions_3d = step["observation"]["gripper_pose"].numpy()[:3]
-        camera_transform_matrix = step["camera_extrinsics"].numpy()
+        camera_transform_matrix = step["front_camera_extrinsics"].numpy()
         camera_pos = camera_transform_matrix[:3, 3]
         camera_quat = Rotation.from_matrix(camera_transform_matrix[:3, :3]).as_quat()
-        camera_intrinsics = step["camera_intrinsics"].numpy()
+        camera_intrinsics = step["front_camera_intrinsics"].numpy()
 
         # Project tcp position in the image
         u, v = calculate_2d_position(

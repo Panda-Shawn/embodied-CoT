@@ -121,3 +121,16 @@
 /home/nus/data/colosseum_dataset/empty_dishwasher_12/episodes/episode44
 /home/nus/data/colosseum_dataset/scoop_with_spatula_0/episodes/episode33
 /home/nus/data/colosseum_dataset/empty_dishwasher_15/episodes/episode47
+/home/nus/data/colosseum_dataset/basketball_in_hoop_0/episodes/episode19
+/home/nus/data/colosseum_dataset/basketball_in_hoop_0/episodes/episode40
+/home/nus/data/colosseum_dataset/scoop_with_spatula_0/episodes/episode15
+/home/nus/data/colosseum_dataset/empty_dishwasher_0/episodes/episode33
+/home/nus/data/colosseum_dataset/empty_dishwasher_0/episodes/episode78
+/home/nus/data/colosseum_dataset/insert_onto_square_peg_0/episodes/episode18
+/home/nus/data/colosseum_dataset/empty_dishwasher_0/episodes/episode20
+/home/nus/data/colosseum_dataset/empty_dishwasher_0/episodes/episode3
+/home/nus/data/colosseum_dataset/straighten_rope_0/episodes/episode45
+/home/nus/data/colosseum_dataset/straighten_rope_0/episodes/episode80
+/home/nus/data/colosseum_dataset/empty_dishwasher_0/episodes/episode87
+/home/nus/data/colosseum_dataset/stack_cups_0/episodes/episode53
+/home/nus/data/colosseum_dataset/empty_dishwasher_0/episodes/episode68
