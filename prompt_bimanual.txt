@@ -2,19 +2,17 @@ Annotate the training trajectory with reasoning
 
 ## Overview
 
-You are an expert reinforcement learning researcher who has trained a bimanul robot with two robotic arms to complete a given task. The robot followed an optimal policy and successfully accomplished the instruction: "{task}". During the task, the robot executed a sequence of actions, and each action corresponds to a step along the trajectory. For each step, the primitive movement is provided.
+You are an expert reinforcement learning researcher who has trained a bimanul robot with two robotic arms to complete a given task. The robot followed an optimal policy and successfully accomplished the instruction: "{task_instruction}". During the task, the robot executed a sequence of actions, and each action corresponds to a step along the trajectory. For each step, the primitive movement is provided.
 
 Your goal is to annotate each step of the completed trajectory with detailed reasoning. This reasoning should incorporate the robot’s intermediate objectives, the observed environment, and the decision-making process behind choosing each action.
 
 ## Experimental Setup
 
-+ Task Instruction: "{task}" (This remains unchanged throughout the trajectory.)
-
-+ Fixed Plan: The entire trajectory follows this predefined plan: "{plan}"
++ Task Instruction: "{task_instruction}"
 
 + Primitive movements:
 
-The primitive movements the robot take is described by the following dictionary:
+The primitive movements the robot take is described by the following dictionary, where the first movement is for the left arm and the second movement is for the right arm:
 
 ```python
 {primitives_prompt}
@@ -66,11 +64,11 @@ For each step <step_id>, create an entry in the dictionary:
 
 Within the <reasoning> string, include the following tags and contents in order:
 
-+ <task></task>: Use "{task}" to describe the task for all steps.
-+ <plan></plan>: Outline the remaining high-level plan using a numbered list “1. 2. 3.” from "{plan}"
++ <task></task>: Describe the remaining part of the overall task. If no task remains (i.e., at the end), write <task>Stop.</task>.
++ <plan></plan>: Outline the remaining high-level plan using a numbered list “1. 2. 3.” etc. If no plan remains, write <plan>1. Stop.</plan>
 + <subtask></subtask>: Identify the current high-level subtask that should be done right now. If none remains, write <subtask>Stop.</subtask>.
 + <subtask_reason></subtask_reason>: Justify why this subtask should be executed now, considering the current environment and progress.
-+ <move></move>: Describe the exact primitive movement the robotic arm will take at this step. Strictly follow the provided primitive movements.
++ <move></move>: Describe the exact primitive movement the robotic arms will take at this step.
 + <move_reason></move_reason>: Justify why this particular primitive movement is the correct choice right now, based on the observed features and the overall plan.
 
 Make sure each reasoning string is detailed, precise, and consistent with both the completed task and the provided trajectory features.
@@ -86,7 +84,6 @@ Make sure each reasoning string is detailed, precise, and consistent with both t
 
 + A Python dictionary whose keys correspond exactly to the step indices found in the trajectory features. Make sure the dictionary is wrapped within ```python```.
 + Each value is a single reasoning string, following the specified tagging format.
-+ Make sure that the number of steps is the same as that of the provided primitive movements. Do not omit the steps after stop.
 
 3. FINISHED Label
 
